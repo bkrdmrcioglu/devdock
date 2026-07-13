@@ -10,7 +10,6 @@
 		001D189661D3F6731DCF5AFB /* WorkspaceEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6D2C3BCC7D223949B616432 /* WorkspaceEditorView.swift */; };
 		051740B67B6ABE2D10E3699A /* LogsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2AA7AB670EE3D1E3CC4B147 /* LogsView.swift */; };
 		12FE0D0016D06EEAD3B92BF7 /* GitService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C51F95A44D1DD2302879E24C /* GitService.swift */; };
-		13A8A65E42C946C51CBA3C70 /* DevDockIcon-1024.png in Resources */ = {isa = PBXBuildFile; fileRef = 6B363DF8AB6CE0D7489D2A09 /* DevDockIcon-1024.png */; };
 		1641BB691DE5129202DCD937 /* MenuBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74D80A15DDEAD5582A0A79CD /* MenuBarView.swift */; };
 		1B2437E183019D7AB5A5497B /* AboutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F50823CBFE9A9760EAB2512 /* AboutView.swift */; };
 		1E3213B6A0C45D84F5379063 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB418D1F9E83A16E50A74989 /* OnboardingView.swift */; };
@@ -48,7 +47,6 @@
 		4DB2F0BC30E0CEFF880F4A9A /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		503704500303AB1D72CBF3FF /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		575BB1AFD1A38339540720E3 /* DevProject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DevProject.swift; sourceTree = "<group>"; };
-		6B363DF8AB6CE0D7489D2A09 /* DevDockIcon-1024.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "DevDockIcon-1024.png"; sourceTree = "<group>"; };
 		74D80A15DDEAD5582A0A79CD /* MenuBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarView.swift; sourceTree = "<group>"; };
 		76BDA59B5847151BE6C8E598 /* ScanRootLocator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScanRootLocator.swift; sourceTree = "<group>"; };
 		79439CE936837C781AF8CED5 /* FrameworkDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FrameworkDetector.swift; sourceTree = "<group>"; };
@@ -133,7 +131,6 @@
 			isa = PBXGroup;
 			children = (
 				503704500303AB1D72CBF3FF /* Assets.xcassets */,
-				6B363DF8AB6CE0D7489D2A09 /* DevDockIcon-1024.png */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -212,7 +209,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				8769CD28C5DD4E306D466517 /* Assets.xcassets in Resources */,
-				13A8A65E42C946C51CBA3C70 /* DevDockIcon-1024.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -289,7 +285,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 3;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
@@ -329,9 +325,11 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = DevDock;
+				INFOPLIST_KEY_CFBundleIconFile = AppIcon;
+				INFOPLIST_KEY_CFBundleIconName = AppIcon;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.developer-tools";
-				INFOPLIST_KEY_LSUIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2026 DevDock";
+				INFOPLIST_KEY_NSUIApplicationSceneManifest_Generation = YES;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
@@ -351,9 +349,11 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = DevDock;
+				INFOPLIST_KEY_CFBundleIconFile = AppIcon;
+				INFOPLIST_KEY_CFBundleIconName = AppIcon;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.developer-tools";
-				INFOPLIST_KEY_LSUIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2026 DevDock";
+				INFOPLIST_KEY_NSUIApplicationSceneManifest_Generation = YES;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
@@ -398,7 +398,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 3;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;

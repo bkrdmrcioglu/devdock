@@ -7,7 +7,7 @@ options:
 settings:
   base:
     MARKETING_VERSION: "0.2.0"
-    CURRENT_PROJECT_VERSION: 2
+    CURRENT_PROJECT_VERSION: 3
     SWIFT_VERSION: "5.9"
     MACOSX_DEPLOYMENT_TARGET: "14.0"
 targets:
@@ -16,16 +16,22 @@ targets:
     platform: macOS
     sources:
       - path: DevDock
+        excludes:
+          - "Resources/DevDockIcon-1024.png"
+          - "Resources/AppIcon.icns"
     resources:
       - path: DevDock/Resources/Assets.xcassets
+      - path: DevDock/Resources/AppIcon.icns
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.devdock.app
         PRODUCT_NAME: DevDock
         INFOPLIST_KEY_CFBundleDisplayName: DevDock
+        INFOPLIST_KEY_CFBundleIconFile: AppIcon
+        INFOPLIST_KEY_CFBundleIconName: AppIcon
         INFOPLIST_KEY_LSApplicationCategoryType: public.app-category.developer-tools
         INFOPLIST_KEY_NSHumanReadableCopyright: "Copyright © 2026 DevDock"
-        INFOPLIST_KEY_LSUIApplicationSceneManifest_Generation: YES
+        INFOPLIST_KEY_NSUIApplicationSceneManifest_Generation: YES
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         GENERATE_INFOPLIST_FILE: YES
         CODE_SIGN_ENTITLEMENTS: DevDock/DevDock.entitlements
