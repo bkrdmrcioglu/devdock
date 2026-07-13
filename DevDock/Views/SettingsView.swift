@@ -255,7 +255,7 @@ struct SettingsView: View {
             Text("Updates")
                 .font(.system(size: 15, weight: .bold, design: .rounded))
 
-            Text("Checks GitHub Releases for a newer zip. Install is still manual (Download or Homebrew).")
+            Text("When a newer release exists, tap Update. DevDock runs brew upgrade, quits, and opens the new app.")
                 .font(.system(size: 11))
                 .foregroundStyle(DevDockTheme.mist)
 
@@ -269,14 +269,20 @@ struct SettingsView: View {
                         Text("Check for updates")
                     }
                 }
-                .buttonStyle(AccentButtonStyle())
-                .disabled(store.isCheckingUpdate)
+                .buttonStyle(GhostButtonStyle())
+                .disabled(store.isCheckingUpdate || store.isHomebrewUpdating)
 
                 if store.availableUpdate != nil {
-                    Button("Download") { store.openUpdateDownload() }
+                    Button {
+                        store.installUpdateViaHomebrew()
+                    } label: {
+                        Text(store.isHomebrewUpdating ? "Updating…" : "Update")
+                    }
+                    .buttonStyle(AccentButtonStyle())
+                    .disabled(store.isHomebrewUpdating)
+                    Button("Zip") { store.openUpdateDownload() }
                         .buttonStyle(GhostButtonStyle())
-                    Button("Copy brew") { store.copyBrewUpgradeCommand() }
-                        .buttonStyle(GhostButtonStyle())
+                        .disabled(store.isHomebrewUpdating)
                 }
             }
 

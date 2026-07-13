@@ -32,6 +32,7 @@ final class DevDockStore: ObservableObject {
     @Published var isCheckingUpdate = false
     /// Last manual check status for Settings.
     @Published var updateCheckMessage: String = ""
+    @Published var isHomebrewUpdating = false
 
     let processManager = ProcessManager()
     let licenseManager = LicenseManager()
@@ -279,7 +280,7 @@ final class DevDockStore: ObservableObject {
                     }
                 } else {
                     availableUpdate = info
-                    updateCheckMessage = "DevDock \(info.version) is available."
+                    updateCheckMessage = "DevDock \(info.version) is available — Update when ready."
                 }
             case .failed(let reason):
                 if !silent {
@@ -304,6 +305,34 @@ final class DevDockStore: ObservableObject {
         }
         let url = update.downloadURL ?? update.releasePageURL ?? UpdateChecker.siteURL
         NSWorkspace.shared.open(url)
+    }
+
+    /// User tapped Update: brew upgrade → quit → open new `/Applications/DevDock.app`.
+    func installUpdateViaHomebrew() {
+        guard availableUpdate != nil else {
+            updateCheckMessage = "No update queued."
+            return
+        }
+        guard !isHomebrewUpdating else { return }
+        guard HomebrewUpdater.brewPath != nil else {
+            updateCheckMessage = "Homebrew not found — use Zip, or install brew first."
+            return
+        }
+
+        isHomebrewUpdating = true
+        updateCheckMessage = "Updating via Homebrew…"
+
+        Task {
+            let result = await HomebrewUpdater.upgradeCask()
+            if result.ok, let appURL = result.appURL {
+                updateCheckMessage = result.message
+                try? await Task.sleep(nanoseconds: 250_000_000)
+                HomebrewUpdater.scheduleRelaunch(appURL: appURL)
+            } else {
+                isHomebrewUpdating = false
+                updateCheckMessage = result.message
+            }
+        }
     }
 
     func copyBrewUpgradeCommand() {

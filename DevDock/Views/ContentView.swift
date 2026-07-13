@@ -120,14 +120,27 @@ struct ContentView: View {
                         .foregroundStyle(DevDockTheme.mist)
                 }
                 .buttonStyle(.plain)
-                .help("Dismiss until next version")
+                .help("Later")
+                .disabled(store.isHomebrewUpdating)
+            }
+            if store.isHomebrewUpdating || !store.updateCheckMessage.isEmpty {
+                Text(store.isHomebrewUpdating ? "Updating via Homebrew…" : store.updateCheckMessage)
+                    .font(.system(size: 11))
+                    .foregroundStyle(DevDockTheme.mist)
+                    .lineLimit(2)
             }
             HStack(spacing: 8) {
-                Button("Download") { store.openUpdateDownload() }
-                    .buttonStyle(AccentButtonStyle())
-                Button("Copy brew") { store.copyBrewUpgradeCommand() }
+                Button {
+                    store.installUpdateViaHomebrew()
+                } label: {
+                    Text(store.isHomebrewUpdating ? "Updating…" : "Update")
+                }
+                .buttonStyle(AccentButtonStyle())
+                .disabled(store.isHomebrewUpdating)
+                .help("Homebrew upgrade, then relaunch")
+                Button("Zip") { store.openUpdateDownload() }
                     .buttonStyle(GhostButtonStyle())
-                    .help(UpdateChecker.brewUpgradeCommand)
+                    .disabled(store.isHomebrewUpdating)
             }
         }
         .padding(.horizontal, 12)
