@@ -39,3 +39,5 @@ targets:
         COMBINE_HIDPI_IMAGES: YES
     entitlements:
       path: DevDock/DevDock.entitlements
+      properties:
+        com.apple.security.network.client: true
