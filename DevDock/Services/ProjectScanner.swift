@@ -127,7 +127,7 @@ struct ProjectScanner {
         }
     }
 
-    /// e.g. `hqtv-app/web` instead of many duplicate `web` rows.
+    /// e.g. `studio/web` instead of many duplicate `web` rows.
     private func projectDisplayName(path: String, scanRoot: String) -> String {
         let root = (scanRoot as NSString).standardizingPath
         let full = (path as NSString).standardizingPath

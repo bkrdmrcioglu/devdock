@@ -50,7 +50,7 @@ Ad-hoc signed for local use. Notarize before public distribution.
 
 - Folder scan + custom Browse… (home dirs + `/Volumes/*/Projeler|Projects`)
 - Framework detection (Next.js, React, Vue, Nest, Express, Laravel, Django, Flask, Rails, Go, Rust)
-- Monorepo-aware names (`hqtv-app/web`)
+- Monorepo-aware names (`studio/web`)
 - Start / Stop / Logs (GUI PATH, process tree kill)
 - External port detection (Terminal-started → yellow)
 - Workspaces + auto suggestions
