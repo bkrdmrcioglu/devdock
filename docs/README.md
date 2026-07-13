@@ -47,3 +47,17 @@ python3 -m http.server 8080
 ## Lemon Squeezy “Your website”
 
 Use: `https://bkrdmrcioglu.github.io/devdock-site/`
+
+## Free download binary
+
+App zip (not source) is published on the public site repo Releases:
+
+https://github.com/bkrdmrcioglu/devdock-site/releases/download/v0.2.0/DevDock-0.2.0.zip
+
+After `./scripts/release.sh`, upload the new zip:
+
+```bash
+gh release create vX.Y.Z dist/DevDock-X.Y.Z.zip --repo bkrdmrcioglu/devdock-site --title "DevDock X.Y.Z"
+```
+
+Then update download links in `docs/index.html` and sync the site.
