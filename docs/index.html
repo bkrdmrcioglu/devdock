@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>DevDock — All your local stacks. One workspace.</title>
-  <meta name="description" content="macOS app that finds your local projects and starts API, web, and admin stacks in one click. No Docker. No terminal circus." />
+  <meta name="description" content="macOS app that finds your local projects and starts API, web, and mobile stacks in one click. Workspaces, simulators, ports, updates — no Docker circus." />
   <meta property="og:title" content="DevDock" />
   <meta property="og:description" content="All your local stacks. One workspace." />
   <meta property="og:type" content="website" />
@@ -27,6 +27,7 @@
     </a>
     <nav>
       <a href="#features">Features</a>
+      <a href="#faq">FAQ</a>
       <a href="#pricing">Pricing</a>
       <a href="#download" class="nav-cta">Download</a>
     </nav>
@@ -37,7 +38,7 @@
       <h1 class="reveal">DevDock</h1>
       <p class="lede reveal delay-1">All your local stacks. One workspace.</p>
       <p class="support reveal delay-2">
-        Scan projects. Start API + web + mobile together. Simulator targets, stack commands, and logs from the menu bar.
+        Scan projects. Start API + web + mobile together. Simulators, ports, logs, and one-tap updates — from the app or the menu bar.
       </p>
       <div class="cta-row reveal delay-3">
         <a class="btn primary" href="https://github.com/bkrdmrcioglu/devdock-site/releases/download/v0.2.4/DevDock-0.2.4.zip">Download for Mac</a>
@@ -50,7 +51,7 @@
           <button type="button" class="brew-copy" data-copy-target="brew-cmd" aria-label="Copy Homebrew command">Copy</button>
         </div>
       </div>
-      <p class="fine reveal delay-3">macOS 14+ · Free for 3 projects · or download the zip</p>
+      <p class="fine reveal delay-3">macOS 14+ · Free for 3 projects · Notarized Developer ID</p>
     </section>
 
     <section class="shot reveal delay-4" aria-label="Product preview">
@@ -63,12 +64,12 @@
           <aside>
             <p class="aside-label">Projects</p>
             <div class="row on"><i></i> harbor/api · Nest · :3000</div>
-            <div class="row"><i></i> harbor/mobile · React · :8081</div>
+            <div class="row"><i></i> harbor/mobile · Expo · :8081</div>
             <div class="row on ext"><i></i> pulse-store · Next · :3001</div>
             <div class="row"><i></i> ledger · Go · :8080</div>
           </aside>
           <div class="detail">
-            <p class="status"><i class="dot"></i> Running</p>
+            <p class="status"><i class="dot"></i> Ready</p>
             <h2>harbor/api</h2>
             <p class="meta">NestJS · localhost:3000</p>
             <div class="actions">
@@ -83,34 +84,223 @@
     </section>
 
     <section id="features" class="features">
-      <h2>Built for the morning ritual</h2>
-      <p class="section-support">Replace five terminals, one Docker Desktop click, and a sticky note of ports.</p>
+      <h2>Everything in the dock</h2>
+      <p class="section-support">
+        Built for the morning ritual — replace five terminals, a sticky note of ports, and “which simulator did I open?”
+      </p>
       <dl class="feature-list">
         <div>
           <dt>Scan &amp; detect</dt>
-          <dd>Finds Next.js, Nest, Laravel, Flutter, Expo, Go, and 30+ more — including monorepos like <code>studio/web</code>.</dd>
+          <dd>
+            Watches your folders for Next.js, Nest, Laravel, Flutter, Expo, React Native, Swift, Kotlin/Android, Go, Rust, Django, Rails, Spring, and 30+ more — including monorepo paths like <code>studio/web</code>.
+            Rescans on launch so new stacks show up without babysitting.
+          </dd>
         </div>
         <div>
-          <dt>Start / Stop / Logs</dt>
-          <dd>Runs your real scripts with a proper GUI PATH. Stops process trees. Logs slide in from the right with Errors / Warnings tabs and copy.</dd>
+          <dt>Roles &amp; filters</dt>
+          <dd>
+            Sidebar groups: Web, Mobile, API, Desktop. Filter chips so you only see what you’re running this morning.
+          </dd>
+        </div>
+        <div>
+          <dt>Start / Stop / Restart</dt>
+          <dd>
+            Runs your real scripts with a proper GUI PATH (nvm, FVM, Homebrew). Stops process trees cleanly.
+            Busy ports remap or warn — no surprise kills by default.
+          </dd>
+        </div>
+        <div>
+          <dt>HTTP Ready</dt>
+          <dd>
+            Pings localhost until the stack answers. Ready / Waiting in the UI and menu bar.
+            Optional macOS notification when Ready lands.
+          </dd>
+        </div>
+        <div>
+          <dt>Logs drawer</dt>
+          <dd>
+            Live logs slide in from the right. Errors / Warnings tabs, copy, and auto-open when Start fails with a one-line reason.
+          </dd>
         </div>
         <div>
           <dt>Mobile targets</dt>
-          <dd>Boot iOS Simulator or Android Emulator on purpose — never surprise physical devices. Connected device list for Expo, React Native, Ionic, and Flutter.</dd>
+          <dd>
+            Quick targets for iOS Simulator / Android Emulator — never a physical phone by mistake.
+            Connected device list for Expo, React Native, Ionic, and Flutter. Device list refreshes in the background.
+          </dd>
+        </div>
+        <div>
+          <dt>Expo ≠ Kotlin</dt>
+          <dd>
+            Expo / React Native stay one project. Nested <code>android/</code> and <code>ios/</code> shells are not listed as separate Kotlin or Swift apps.
+          </dd>
+        </div>
+        <div>
+          <dt>Native mobile start</dt>
+          <dd>
+            Pure Swift/Xcode and Kotlin/Android projects can build, install, and keep-alive on Simulator / Emulator from Start.
+          </dd>
         </div>
         <div>
           <dt>Stack commands</dt>
-          <dd>Framework helpers in one place: install, migrate, test, hot reload, Flutter tool keys, and your own custom commands.</dd>
+          <dd>
+            Framework helpers in one place: install, migrate, test, build, artisan, Flutter tool keys, hot reload / hot restart, plus your own project and global custom commands.
+          </dd>
+        </div>
+        <div>
+          <dt>Missing deps · Fix</dt>
+          <dd>
+            Detects missing <code>node_modules</code>, Flutter pub get, Composer, or Bundler — one Fix button runs the install with logs.
+          </dd>
+        </div>
+        <div>
+          <dt>Port panel</dt>
+          <dd>
+            See who holds <code>localhost:port</code> (name, pid, command) and Kill in one tap. External Terminal processes show as yellow / external when cwd matches.
+          </dd>
         </div>
         <div>
           <dt>Workspaces</dt>
-          <dd>One click for API + frontend + admin. Staggered starts, optional browser open, menu bar control.</dd>
+          <dd>
+            Group API + web + mobile. Staggered starts, optional browser open, auto suggestions.
+            Mark one as your morning routine — ⌘⇧M or menu bar.
+          </dd>
         </div>
         <div>
-          <dt>External ports</dt>
-          <dd>Already running from Terminal? DevDock matches the process cwd — not every project on :3000.</dd>
+          <dt>Automation</dt>
+          <dd>
+            Morning routine on launch (optional). Idle auto-stop after quiet time. Ready notifications on or off.
+          </dd>
+        </div>
+        <div>
+          <dt>Command palette</dt>
+          <dd>
+            ⌘K for Rescan, Morning, Stop all, jump to projects, What’s new, Check for updates.
+          </dd>
+        </div>
+        <div>
+          <dt>Menu bar</dt>
+          <dd>
+            Start / stop stacks and morning routine without bringing the main window forward. CPU / RAM hints for managed trees (including Simulator Runner when relevant).
+          </dd>
+        </div>
+        <div>
+          <dt>In-app updates</dt>
+          <dd>
+            Checks GitHub Releases on launch. When a newer build exists, tap <strong>Update</strong> — Homebrew upgrades, DevDock quits, and the notarized app in <code>/Applications</code> relaunches.
+            Zip download remains as a fallback.
+          </dd>
+        </div>
+        <div>
+          <dt>What’s new</dt>
+          <dd>
+            Versioned changelog inside the app (latest first) plus keyboard shortcut reference.
+          </dd>
+        </div>
+        <div>
+          <dt>Onboarding</dt>
+          <dd>
+            Three short steps: pick scan roots, learn Rescan, tip for Simulator / Emulator quick targets.
+          </dd>
         </div>
       </dl>
+    </section>
+
+    <section id="faq" class="faq">
+      <h2>FAQ</h2>
+      <p class="section-support">Short answers. No support ticket required for the obvious ones.</p>
+
+      <div class="faq-list">
+        <details>
+          <summary>What is DevDock?</summary>
+          <p>
+            A native macOS app that scans your project folders, detects frameworks, and starts / stops local stacks
+            (API, web, mobile) with logs, ports, and workspaces — without Docker Desktop theater.
+          </p>
+        </details>
+        <details>
+          <summary>Which macOS versions work?</summary>
+          <p>macOS 14 Sonoma or later. Apple Silicon and Intel via the universal / arm64 Developer ID build we ship today.</p>
+        </details>
+        <details>
+          <summary>Free vs Pro?</summary>
+          <p>
+            Free: up to 3 projects, Start / Stop / Open, scan, updates.
+            Pro ($29 one-time): unlimited projects, workspaces, menu bar controls, external port awareness, auto workspace suggestions.
+          </p>
+        </details>
+        <details>
+          <summary>How do I install?</summary>
+          <p>
+            Homebrew: <code>brew install --cask bkrdmrcioglu/devdock/devdock</code>
+            — or download the notarized zip from this site and drag DevDock to Applications.
+          </p>
+        </details>
+        <details>
+          <summary>Gatekeeper said it couldn’t verify the app?</summary>
+          <p>
+            Current releases are <strong>notarized</strong> Developer ID builds. Prefer Homebrew or the latest zip from this page.
+            If you still see a warning on an old download, get 0.2.4+ again.
+          </p>
+        </details>
+        <details>
+          <summary>How do updates work?</summary>
+          <p>
+            DevDock checks public GitHub Releases. When a newer version is available, tap <strong>Update</strong>.
+            It runs <code>brew install --cask bkrdmrcioglu/devdock/devdock</code>, quits, and opens the new app from Applications.
+            You can still download the zip manually.
+          </p>
+        </details>
+        <details>
+          <summary>Does Start open Xcode / Android Studio?</summary>
+          <p>
+            No. For JS mobile (Expo / RN) it starts Metro and can send Simulator / Emulator keys.
+            For pure Swift / Kotlin projects it builds and launches on Simulator / Emulator when tools are installed.
+          </p>
+        </details>
+        <details>
+          <summary>Why isn’t my Expo android folder a separate project?</summary>
+          <p>
+            On purpose. Nested <code>android/</code> and <code>ios/</code> under Expo / React Native belong to the JS app —
+            listed once as Expo / RN so Start runs Metro, not a stray Gradle shell.
+          </p>
+        </details>
+        <details>
+          <summary>Will it pick my physical phone?</summary>
+          <p>
+            Quick targets (iOS Simulator / Android Emulator) never fall back to a physical device.
+            Connected devices stay in their own list if you want an exact target.
+          </p>
+        </details>
+        <details>
+          <summary>Can it see projects I started in Terminal?</summary>
+          <p>
+            Yes. If the port is live and the listener cwd matches the project, DevDock shows it as external (yellow)
+            so you don’t double-start.
+          </p>
+        </details>
+        <details>
+          <summary>Where is source code?</summary>
+          <p>
+            The Swift app source stays private. Only the notarized Mac binary (and this site) are public —
+            same model as many indie Mac tools.
+          </p>
+        </details>
+        <details>
+          <summary>Payments / license?</summary>
+          <p>
+            Pro is sold via Lemon Squeezy. After purchase you get a license key to activate in Settings.
+            One-time payment — no subscription.
+          </p>
+        </details>
+        <details>
+          <summary>Data / privacy?</summary>
+          <p>
+            Projects run on your machine. Scan roots and settings stay local.
+            Update checks hit GitHub Releases; Pro activation talks to Lemon Squeezy. No project source is uploaded.
+          </p>
+        </details>
+      </div>
     </section>
 
     <section id="pricing" class="pricing">
@@ -122,8 +312,9 @@
           <p class="price">$0</p>
           <ul>
             <li>Up to 3 projects</li>
-            <li>Start / Stop / Open</li>
-            <li>Basic scan</li>
+            <li>Start / Stop / Open / Logs</li>
+            <li>Scan, ports, mobile targets</li>
+            <li>In-app updates</li>
           </ul>
           <a class="btn ghost" href="https://github.com/bkrdmrcioglu/devdock-site/releases/download/v0.2.4/DevDock-0.2.4.zip">Download</a>
         </article>
@@ -132,7 +323,7 @@
           <p class="price">$29 <span>one-time</span></p>
           <ul>
             <li>Unlimited projects</li>
-            <li>Workspaces</li>
+            <li>Workspaces &amp; morning routine</li>
             <li>Menu bar controls</li>
             <li>External port awareness</li>
             <li>Auto workspace suggestions</li>
@@ -145,8 +336,7 @@
     <section id="download" class="download-block">
       <h2>Download</h2>
       <p class="section-support">
-        Free for everyone — up to 3 projects. Source stays private; only the app binary is public.
-        First launch may need Right-click → Open until notarized builds ship.
+        Free for everyone — up to 3 projects. Notarized Developer ID build. Source stays private; only the app binary is public.
       </p>
       <div class="install-block">
         <p class="install-label">Homebrew</p>

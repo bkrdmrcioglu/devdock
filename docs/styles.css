@@ -358,8 +358,8 @@ pre {
   font-size: 0.85rem;
 }
 
-.features, .pricing, .download-block { padding: 24px 0 56px; }
-.features h2, .pricing h2, .download-block h2 {
+.features, .pricing, .download-block, .faq { padding: 24px 0 56px; }
+.features h2, .pricing h2, .download-block h2, .faq h2 {
   margin: 0;
   font-family: var(--display);
   font-size: clamp(1.85rem, 4vw, 2.5rem);
@@ -400,6 +400,62 @@ pre {
   color: var(--mist);
   font-size: 0.98rem;
   max-width: 40rem;
+}
+
+.feature-list dd strong {
+  color: var(--chalk);
+  font-weight: 600;
+}
+
+.faq-list {
+  border-top: 1px solid var(--line);
+}
+
+.faq-list details {
+  border-bottom: 1px solid var(--line);
+  padding: 0;
+}
+
+.faq-list summary {
+  list-style: none;
+  cursor: pointer;
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 1.05rem;
+  letter-spacing: -0.02em;
+  padding: 18px 0;
+  color: var(--chalk);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.faq-list summary::-webkit-details-marker { display: none; }
+
+.faq-list summary::after {
+  content: "+";
+  font-family: var(--mono);
+  font-weight: 500;
+  color: var(--accent);
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
+.faq-list details[open] summary::after {
+  content: "–";
+}
+
+.faq-list details p {
+  margin: 0 0 18px;
+  color: var(--mist);
+  max-width: 40rem;
+  font-size: 0.98rem;
+}
+
+.faq-list details code {
+  font-size: 0.88em;
+  color: var(--accent);
 }
 
 .plans {
