@@ -5,11 +5,58 @@ enum PortManager {
         !pids(on: port).isEmpty
     }
 
+    /// First free TCP port at or after `preferred`, searching up to `span` candidates.
+    static func nextFreePort(preferred: Int, span: Int = 50) -> Int? {
+        guard preferred > 0 else { return nil }
+        for offset in 0..<span {
+            let candidate = preferred + offset
+            if candidate > 65_535 { break }
+            if !isPortInUse(candidate) {
+                return candidate
+            }
+        }
+        return nil
+    }
+
     static func pids(on port: Int) -> [Int32] {
         let output = shell(["/usr/sbin/lsof", "-nP", "-iTCP:\(port)", "-sTCP:LISTEN", "-t"])
         return output
             .split(whereSeparator: \.isNewline)
             .compactMap { Int32($0.trimmingCharacters(in: .whitespacesAndNewlines)) }
+    }
+
+    struct Listener: Identifiable, Equatable {
+        var id: Int32 { pid }
+        let pid: Int32
+        let name: String
+        let command: String
+    }
+
+    /// Who is listening on this TCP port (for the Port panel).
+    static func listeners(on port: Int) -> [Listener] {
+        pids(on: port).map { pid in
+            Listener(
+                pid: pid,
+                name: processName(pid: pid),
+                command: processCommand(pid: pid)
+            )
+        }
+    }
+
+    static func processName(pid: Int32) -> String {
+        let raw = shell(["/bin/ps", "-o", "comm=", "-p", "\(pid)"])
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        if raw.isEmpty { return "pid \(pid)" }
+        return (raw as NSString).lastPathComponent
+    }
+
+    static func processCommand(pid: Int32) -> String {
+        let raw = shell(["/bin/ps", "-o", "command=", "-p", "\(pid)"])
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        if raw.count > 72 {
+            return String(raw.prefix(69)) + "…"
+        }
+        return raw
     }
 
     /// Working directories of processes listening on `port` (and parents/children).

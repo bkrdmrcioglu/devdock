@@ -6,13 +6,22 @@ struct WorkspaceSuggestion: Identifiable, Hashable {
     let projectIDs: [UUID]
     let memberNames: [String]
     let parentPath: String
+    /// e.g. "API + Web + Mobile"
+    let roleSummary: String
 
-    init(name: String, projectIDs: [UUID], memberNames: [String], parentPath: String) {
+    init(
+        name: String,
+        projectIDs: [UUID],
+        memberNames: [String],
+        parentPath: String,
+        roleSummary: String
+    ) {
         self.id = UUID()
         self.name = name
         self.projectIDs = projectIDs
         self.memberNames = memberNames
         self.parentPath = parentPath
+        self.roleSummary = roleSummary
     }
 }
 
@@ -40,16 +49,24 @@ enum WorkspaceSuggester {
             let ids = members.map(\.id)
             let idSet = Set(ids)
             if existingSets.contains(idSet) { continue }
-            // Also skip if an existing workspace already covers the same parent set loosely
             if existing.contains(where: { Set($0.projectIDs) == idSet }) { continue }
 
             let folderNames = members.map { URL(fileURLWithPath: $0.path).lastPathComponent.lowercased() }
             let roleHits = folderNames.filter { name in
                 roleHints.contains(where: { name == $0 || name.contains($0) })
             }
-            // Need at least 2 role-like siblings OR 2+ projects with different ports/frameworks
+
+            let stackRoles = Set(members.map(\.framework.stackRole).filter { $0 != .other })
             let distinctFrameworks = Set(members.map(\.framework))
-            let looksLikeStack = roleHits.count >= 2 || (members.count >= 2 && distinctFrameworks.count >= 2)
+
+            // Prefer complementary stacks: web+api, mobile+api, web+mobile, or all three
+            let complementary = stackRoles.contains(.api) && (stackRoles.contains(.web) || stackRoles.contains(.mobile))
+                || (stackRoles.contains(.web) && stackRoles.contains(.mobile))
+
+            let looksLikeStack = complementary
+                || roleHits.count >= 2
+                || (members.count >= 2 && distinctFrameworks.count >= 2)
+
             guard looksLikeStack else { continue }
 
             let parentName = URL(fileURLWithPath: parent).lastPathComponent
@@ -63,7 +80,8 @@ enum WorkspaceSuggester {
                     name: suggestionName,
                     projectIDs: ids,
                     memberNames: memberNames,
-                    parentPath: parent
+                    parentPath: parent,
+                    roleSummary: roleSummary(for: members)
                 )
             )
         }
@@ -71,5 +89,19 @@ enum WorkspaceSuggester {
         return suggestions.sorted {
             $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending
         }
+    }
+
+    private static func roleSummary(for members: [DevProject]) -> String {
+        var labels: [String] = []
+        let roles = Set(members.map(\.framework.stackRole))
+            if roles.contains(.api) { labels.append("API") }
+            if roles.contains(.web) { labels.append("Web") }
+            if roles.contains(.mobile) { labels.append("Mobile") }
+            if roles.contains(.desktop) { labels.append("Desktop") }
+        if labels.isEmpty {
+            let frameworks = Array(Set(members.map(\.framework.rawValue))).sorted()
+            return frameworks.prefix(3).joined(separator: " · ")
+        }
+        return labels.joined(separator: " + ")
     }
 }

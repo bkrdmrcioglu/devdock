@@ -7,6 +7,9 @@ struct SettingsView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var roots: [String] = []
     @State private var showAbout = false
+    @State private var showWhatsNew = false
+    @State private var globalTitle = ""
+    @State private var globalLine = ""
 
     var body: some View {
         ScrollView {
@@ -20,6 +23,10 @@ struct SettingsView: View {
                 }
 
                 licenseCard
+
+                updatesCard
+
+                automationCard
 
                 Text("Scan folders")
                     .font(.system(size: 12, weight: .semibold))
@@ -83,6 +90,63 @@ struct SettingsView: View {
 
                 Divider().overlay(DevDockTheme.line)
 
+                Text("Global custom commands")
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundStyle(DevDockTheme.mist)
+                Text("Available on every project, any framework.")
+                    .font(.system(size: 11))
+                    .foregroundStyle(DevDockTheme.mist)
+
+                if store.settings.globalCustomCommands.isEmpty {
+                    Text("None yet.")
+                        .font(.system(size: 12))
+                        .foregroundStyle(DevDockTheme.mist)
+                } else {
+                    ForEach(store.settings.globalCustomCommands) { cmd in
+                        HStack {
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(cmd.title)
+                                    .font(.system(size: 13, weight: .semibold))
+                                Text(cmd.display)
+                                    .font(DevDockTheme.mono)
+                                    .foregroundStyle(DevDockTheme.mist)
+                            }
+                            Spacer()
+                            Button {
+                                store.deleteGlobalCommand(cmd.id)
+                            } label: {
+                                Image(systemName: "trash")
+                            }
+                            .buttonStyle(.plain)
+                            .foregroundStyle(DevDockTheme.mist)
+                        }
+                        .padding(10)
+                        .background(DevDockTheme.panel)
+                        .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+                    }
+                }
+
+                TextField("Title", text: $globalTitle)
+                    .textFieldStyle(.plain)
+                    .padding(10)
+                    .background(DevDockTheme.panel)
+                    .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+                TextField("Command e.g. npm run build", text: $globalLine)
+                    .textFieldStyle(.plain)
+                    .font(DevDockTheme.mono)
+                    .padding(10)
+                    .background(DevDockTheme.panel)
+                    .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+                Button("Add global command") {
+                    store.addGlobalCommand(title: globalTitle, commandLine: globalLine)
+                    globalTitle = ""
+                    globalLine = ""
+                }
+                .buttonStyle(AccentButtonStyle())
+                .disabled(globalLine.trimmingCharacters(in: .whitespaces).isEmpty)
+
+                Divider().overlay(DevDockTheme.line)
+
                 HStack {
                     VStack(alignment: .leading, spacing: 2) {
                         Text(AppInfo.name)
@@ -92,17 +156,20 @@ struct SettingsView: View {
                             .foregroundStyle(DevDockTheme.mist)
                     }
                     Spacer()
+                    Button("What’s new") { showWhatsNew = true }
+                        .buttonStyle(GhostButtonStyle())
                     Button("About") { showAbout = true }
                         .buttonStyle(GhostButtonStyle())
                 }
             }
             .padding(24)
         }
-        .frame(width: 560, height: 620)
+        .frame(width: 560, height: 720)
         .background(DevDockTheme.ink)
         .foregroundStyle(DevDockTheme.chalk)
         .onAppear { roots = store.settings.scanRoots }
         .sheet(isPresented: $showAbout) { AboutView() }
+        .sheet(isPresented: $showWhatsNew) { WhatsNewView() }
     }
 
     private var licenseCard: some View {
@@ -117,7 +184,9 @@ struct SettingsView: View {
             }
 
             Text(license.isPro
-                 ? "Unlimited projects + workspaces unlocked."
+                 ? (license.statusMessage.contains("Debug")
+                    ? "Debug build · all projects + workspaces unlocked."
+                    : "Unlimited projects + workspaces unlocked.")
                  : "Free includes \(LicenseLimits.freeProjectCap) projects. Workspaces need Pro.")
                 .font(.system(size: 12))
                 .foregroundStyle(DevDockTheme.mist)
@@ -179,5 +248,111 @@ struct SettingsView: View {
             RoundedRectangle(cornerRadius: 12, style: .continuous)
                 .stroke(license.isPro ? DevDockTheme.accent.opacity(0.4) : DevDockTheme.line, lineWidth: 1)
         )
+    }
+
+    private var updatesCard: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Updates")
+                .font(.system(size: 15, weight: .bold, design: .rounded))
+
+            Text("Checks GitHub Releases for a newer zip. Install is still manual (Download or Homebrew).")
+                .font(.system(size: 11))
+                .foregroundStyle(DevDockTheme.mist)
+
+            HStack(spacing: 8) {
+                Button {
+                    store.checkForUpdates(silent: false)
+                } label: {
+                    if store.isCheckingUpdate {
+                        Text("Checking…")
+                    } else {
+                        Text("Check for updates")
+                    }
+                }
+                .buttonStyle(AccentButtonStyle())
+                .disabled(store.isCheckingUpdate)
+
+                if store.availableUpdate != nil {
+                    Button("Download") { store.openUpdateDownload() }
+                        .buttonStyle(GhostButtonStyle())
+                    Button("Copy brew") { store.copyBrewUpgradeCommand() }
+                        .buttonStyle(GhostButtonStyle())
+                }
+            }
+
+            if !store.updateCheckMessage.isEmpty {
+                Text(store.updateCheckMessage)
+                    .font(.system(size: 12))
+                    .foregroundStyle(store.availableUpdate != nil ? DevDockTheme.accent : DevDockTheme.mist)
+            }
+
+            Text("Installed \(AppInfo.versionLabel)")
+                .font(.system(size: 11))
+                .foregroundStyle(DevDockTheme.mist)
+        }
+        .padding(14)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(DevDockTheme.panel)
+        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+        .foregroundStyle(DevDockTheme.chalk)
+    }
+
+    private var automationCard: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Automation")
+                .font(.system(size: 15, weight: .bold, design: .rounded))
+
+            Toggle(isOn: Binding(
+                get: { store.settings.notifyOnReady },
+                set: { store.updateAutomationSettings(notifyOnReady: $0) }
+            )) {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Notify when Ready")
+                        .font(.system(size: 13, weight: .semibold))
+                    Text("macOS notification when localhost answers HTTP")
+                        .font(.system(size: 11))
+                        .foregroundStyle(DevDockTheme.mist)
+                }
+            }
+            .toggleStyle(.switch)
+
+            Toggle(isOn: Binding(
+                get: { store.settings.startMorningOnLaunch },
+                set: { store.updateAutomationSettings(startMorningOnLaunch: $0) }
+            )) {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Morning on launch")
+                        .font(.system(size: 13, weight: .semibold))
+                    Text("Start your morning routine when DevDock opens")
+                        .font(.system(size: 11))
+                        .foregroundStyle(DevDockTheme.mist)
+                }
+            }
+            .toggleStyle(.switch)
+
+            VStack(alignment: .leading, spacing: 6) {
+                Text("Idle auto-stop")
+                    .font(.system(size: 13, weight: .semibold))
+                Text("Stop managed stacks after quiet time (0 = off)")
+                    .font(.system(size: 11))
+                    .foregroundStyle(DevDockTheme.mist)
+                Picker("Minutes", selection: Binding(
+                    get: { store.settings.idleAutoStopMinutes },
+                    set: { store.updateAutomationSettings(idleAutoStopMinutes: $0) }
+                )) {
+                    Text("Off").tag(0)
+                    Text("15 min").tag(15)
+                    Text("30 min").tag(30)
+                    Text("60 min").tag(60)
+                    Text("120 min").tag(120)
+                }
+                .pickerStyle(.segmented)
+            }
+        }
+        .padding(14)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(DevDockTheme.panel)
+        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+        .foregroundStyle(DevDockTheme.chalk)
     }
 }

@@ -1,0 +1,8 @@
+name: fixture_flutter
+description: DevDock fixture
+publish_to: "none"
+environment:
+  sdk: ">=3.0.0 <4.0.0"
+dependencies:
+  flutter:
+    sdk: flutter

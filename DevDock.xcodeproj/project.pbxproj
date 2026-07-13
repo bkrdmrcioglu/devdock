@@ -15,8 +15,16 @@
 		1E3213B6A0C45D84F5379063 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB418D1F9E83A16E50A74989 /* OnboardingView.swift */; };
 		1E5B8E4BC50AEC2635AC1BDC /* ProcessManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03C8CC416C934CE3CB434C71 /* ProcessManager.swift */; };
 		209299AD4F367D9CF770EE67 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62A10734FFD23F1B7A0C215 /* SettingsView.swift */; };
+		21265E7E74A7C8D6422D547C /* FlutterDevices.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECF1FCFBA5FF61FA6B356C90 /* FlutterDevices.swift */; };
+		2760A890C68B751514880F83 /* DependencyChecker.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE6EA93DE1BE354A057ED23C /* DependencyChecker.swift */; };
+		2BCE784C81D3E828F2A4DC74 /* AndroidKotlinStart.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4DCAD932476323DBCDFB5EC0 /* AndroidKotlinStart.swift */; };
 		2F3588E1D192E8631D2D53DD /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4DB2F0BC30E0CEFF880F4A9A /* ContentView.swift */; };
+		30598B43E7B1785D03A4B646 /* HealthProbe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60CECE5760FF1992BA2B517F /* HealthProbe.swift */; };
 		31E9E6467E1B72FF8F4FC28E /* WorkspaceSuggester.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3FFC2370B181FBBD18C0438 /* WorkspaceSuggester.swift */; };
+		411432733243E9DC05F86D94 /* UpdateChecker.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC1CC4415AEEFF07C48A1EB3 /* UpdateChecker.swift */; };
+		4C30FA4D451297715CDD087C /* AppNotifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 699A1EF978770032528090EF /* AppNotifier.swift */; };
+		4DB694DC275DCD1834309C84 /* WhatsNewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F967BD46B9B7B55D43E8A5B /* WhatsNewView.swift */; };
+		4E424389FF5509286C274693 /* StartFailureReason.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42D41B91AA677854835192D8 /* StartFailureReason.swift */; };
 		50F6C705494B968BFD02E966 /* DevProject.swift in Sources */ = {isa = PBXBuildFile; fileRef = 575BB1AFD1A38339540720E3 /* DevProject.swift */; };
 		5A995B1917BBAECDE15812C1 /* AppInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07A811F90E780C0BC28565D3 /* AppInfo.swift */; };
 		614410490C2E3AC2EB942F78 /* Framework.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10896311E310995889318D30 /* Framework.swift */; };
@@ -25,13 +33,18 @@
 		742344D909DD10F2D56E7BC9 /* FrameworkDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79439CE936837C781AF8CED5 /* FrameworkDetector.swift */; };
 		86428992F6FDCB45C61B963D /* DevDockApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E024E862D9A5A1ADD7D812E /* DevDockApp.swift */; };
 		8769CD28C5DD4E306D466517 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 503704500303AB1D72CBF3FF /* Assets.xcassets */; };
+		8E681E55C60663877119D759 /* CommandPaletteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D536008F3CC5941E51569491 /* CommandPaletteView.swift */; };
 		91CCBC0F2E2E2676DE9E7C13 /* ScanRootLocator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76BDA59B5847151BE6C8E598 /* ScanRootLocator.swift */; };
 		9750A898D30202EAC63E6DCB /* Toolchain.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C1457AF47C0EAACF894B635 /* Toolchain.swift */; };
+		A3F600BAFDA50F4D73658BB1 /* SwiftProjectStart.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2B08933C765A528AE68DC4E /* SwiftProjectStart.swift */; };
 		BDDF226CFE85C8475441F2D1 /* ExternalLauncher.swift in Sources */ = {isa = PBXBuildFile; fileRef = A669EEFB35387A2460BF180E /* ExternalLauncher.swift */; };
 		C7FB3B32B37E235A6351B578 /* ProjectRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 26711026920B198A2CF3037A /* ProjectRowView.swift */; };
 		D3CC5C16DD24DF60A41A9896 /* PortManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3FCC610DD70E140E29970C7 /* PortManager.swift */; };
 		DA03110CC4F8A42308B73FD6 /* ProjectScanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97845998D2FED5431C569747 /* ProjectScanner.swift */; };
+		DC0CE1DAB391AA1A4FD9DC90 /* StackRuntimeCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A673B9145802C4B591FE06E /* StackRuntimeCatalog.swift */; };
 		DF093962C77CEFB7A9BA11B1 /* ProjectDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF3E691B54E5AEB1A10F0047 /* ProjectDetailView.swift */; };
+		F0AB4D65A8A10BF2C82FA31E /* WhatsNew.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7401440F66CD5B8EA3443B44 /* WhatsNew.swift */; };
+		F1372A6E9D90E7A2343CA336 /* MobileDevices.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFF94CA6B380BD853385DBC2 /* MobileDevices.swift */; };
 		F6FC66DFA61B793969B9E288 /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2A97D83150AECE2D9B17623 /* Theme.swift */; };
 		FBBA6F547BEC3F1716A6C5A1 /* StartCommandResolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88DF942F1FA1DC0798D09E0A /* StartCommandResolver.swift */; };
 /* End PBXBuildFile section */
@@ -43,10 +56,16 @@
 		10896311E310995889318D30 /* Framework.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Framework.swift; sourceTree = "<group>"; };
 		1E024E862D9A5A1ADD7D812E /* DevDockApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DevDockApp.swift; sourceTree = "<group>"; };
 		26711026920B198A2CF3037A /* ProjectRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectRowView.swift; sourceTree = "<group>"; };
+		2F967BD46B9B7B55D43E8A5B /* WhatsNewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WhatsNewView.swift; sourceTree = "<group>"; };
 		3AE277F84BF057927169B133 /* DevDock.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DevDock.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		42D41B91AA677854835192D8 /* StartFailureReason.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StartFailureReason.swift; sourceTree = "<group>"; };
 		4DB2F0BC30E0CEFF880F4A9A /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		4DCAD932476323DBCDFB5EC0 /* AndroidKotlinStart.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AndroidKotlinStart.swift; sourceTree = "<group>"; };
 		503704500303AB1D72CBF3FF /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		575BB1AFD1A38339540720E3 /* DevProject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DevProject.swift; sourceTree = "<group>"; };
+		60CECE5760FF1992BA2B517F /* HealthProbe.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthProbe.swift; sourceTree = "<group>"; };
+		699A1EF978770032528090EF /* AppNotifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppNotifier.swift; sourceTree = "<group>"; };
+		7401440F66CD5B8EA3443B44 /* WhatsNew.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WhatsNew.swift; sourceTree = "<group>"; };
 		74D80A15DDEAD5582A0A79CD /* MenuBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarView.swift; sourceTree = "<group>"; };
 		76BDA59B5847151BE6C8E598 /* ScanRootLocator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScanRootLocator.swift; sourceTree = "<group>"; };
 		79439CE936837C781AF8CED5 /* FrameworkDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FrameworkDetector.swift; sourceTree = "<group>"; };
@@ -54,17 +73,24 @@
 		88DF942F1FA1DC0798D09E0A /* StartCommandResolver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StartCommandResolver.swift; sourceTree = "<group>"; };
 		97845998D2FED5431C569747 /* ProjectScanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectScanner.swift; sourceTree = "<group>"; };
 		99EA53E7708E528FCFE8BB93 /* LicenseManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LicenseManager.swift; sourceTree = "<group>"; };
+		9A673B9145802C4B591FE06E /* StackRuntimeCatalog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StackRuntimeCatalog.swift; sourceTree = "<group>"; };
 		A2AA7AB670EE3D1E3CC4B147 /* LogsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogsView.swift; sourceTree = "<group>"; };
 		A669EEFB35387A2460BF180E /* ExternalLauncher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExternalLauncher.swift; sourceTree = "<group>"; };
+		AE6EA93DE1BE354A057ED23C /* DependencyChecker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DependencyChecker.swift; sourceTree = "<group>"; };
+		B2B08933C765A528AE68DC4E /* SwiftProjectStart.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftProjectStart.swift; sourceTree = "<group>"; };
 		B3FCC610DD70E140E29970C7 /* PortManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PortManager.swift; sourceTree = "<group>"; };
 		B62A10734FFD23F1B7A0C215 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		B6D2C3BCC7D223949B616432 /* WorkspaceEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkspaceEditorView.swift; sourceTree = "<group>"; };
 		C23EC9BE2C8D102AC41CA54A /* DevDock.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = DevDock.entitlements; sourceTree = "<group>"; };
 		C51F95A44D1DD2302879E24C /* GitService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GitService.swift; sourceTree = "<group>"; };
+		D536008F3CC5941E51569491 /* CommandPaletteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommandPaletteView.swift; sourceTree = "<group>"; };
+		DC1CC4415AEEFF07C48A1EB3 /* UpdateChecker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateChecker.swift; sourceTree = "<group>"; };
+		DFF94CA6B380BD853385DBC2 /* MobileDevices.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileDevices.swift; sourceTree = "<group>"; };
 		E2A97D83150AECE2D9B17623 /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
 		E3FFC2370B181FBBD18C0438 /* WorkspaceSuggester.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkspaceSuggester.swift; sourceTree = "<group>"; };
 		E5F96A0B1006E1415373466C /* DevDockStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DevDockStore.swift; sourceTree = "<group>"; };
 		EB418D1F9E83A16E50A74989 /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
+		ECF1FCFBA5FF61FA6B356C90 /* FlutterDevices.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlutterDevices.swift; sourceTree = "<group>"; };
 		FF3E691B54E5AEB1A10F0047 /* ProjectDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectDetailView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -72,18 +98,29 @@
 		0525AAD10DE444DF394A9AD9 /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				4DCAD932476323DBCDFB5EC0 /* AndroidKotlinStart.swift */,
 				07A811F90E780C0BC28565D3 /* AppInfo.swift */,
+				699A1EF978770032528090EF /* AppNotifier.swift */,
+				AE6EA93DE1BE354A057ED23C /* DependencyChecker.swift */,
 				E5F96A0B1006E1415373466C /* DevDockStore.swift */,
 				A669EEFB35387A2460BF180E /* ExternalLauncher.swift */,
+				ECF1FCFBA5FF61FA6B356C90 /* FlutterDevices.swift */,
 				79439CE936837C781AF8CED5 /* FrameworkDetector.swift */,
 				C51F95A44D1DD2302879E24C /* GitService.swift */,
+				60CECE5760FF1992BA2B517F /* HealthProbe.swift */,
 				99EA53E7708E528FCFE8BB93 /* LicenseManager.swift */,
+				DFF94CA6B380BD853385DBC2 /* MobileDevices.swift */,
 				B3FCC610DD70E140E29970C7 /* PortManager.swift */,
 				03C8CC416C934CE3CB434C71 /* ProcessManager.swift */,
 				97845998D2FED5431C569747 /* ProjectScanner.swift */,
 				76BDA59B5847151BE6C8E598 /* ScanRootLocator.swift */,
+				9A673B9145802C4B591FE06E /* StackRuntimeCatalog.swift */,
 				88DF942F1FA1DC0798D09E0A /* StartCommandResolver.swift */,
+				42D41B91AA677854835192D8 /* StartFailureReason.swift */,
+				B2B08933C765A528AE68DC4E /* SwiftProjectStart.swift */,
 				0C1457AF47C0EAACF894B635 /* Toolchain.swift */,
+				DC1CC4415AEEFF07C48A1EB3 /* UpdateChecker.swift */,
+				7401440F66CD5B8EA3443B44 /* WhatsNew.swift */,
 				E3FFC2370B181FBBD18C0438 /* WorkspaceSuggester.swift */,
 			);
 			path = Services;
@@ -139,6 +176,7 @@
 			isa = PBXGroup;
 			children = (
 				7F50823CBFE9A9760EAB2512 /* AboutView.swift */,
+				D536008F3CC5941E51569491 /* CommandPaletteView.swift */,
 				4DB2F0BC30E0CEFF880F4A9A /* ContentView.swift */,
 				A2AA7AB670EE3D1E3CC4B147 /* LogsView.swift */,
 				74D80A15DDEAD5582A0A79CD /* MenuBarView.swift */,
@@ -147,6 +185,7 @@
 				26711026920B198A2CF3037A /* ProjectRowView.swift */,
 				B62A10734FFD23F1B7A0C215 /* SettingsView.swift */,
 				E2A97D83150AECE2D9B17623 /* Theme.swift */,
+				2F967BD46B9B7B55D43E8A5B /* WhatsNewView.swift */,
 				B6D2C3BCC7D223949B616432 /* WorkspaceEditorView.swift */,
 			);
 			path = Views;
@@ -220,18 +259,25 @@
 			buildActionMask = 2147483647;
 			files = (
 				1B2437E183019D7AB5A5497B /* AboutView.swift in Sources */,
+				2BCE784C81D3E828F2A4DC74 /* AndroidKotlinStart.swift in Sources */,
 				5A995B1917BBAECDE15812C1 /* AppInfo.swift in Sources */,
+				4C30FA4D451297715CDD087C /* AppNotifier.swift in Sources */,
+				8E681E55C60663877119D759 /* CommandPaletteView.swift in Sources */,
 				2F3588E1D192E8631D2D53DD /* ContentView.swift in Sources */,
+				2760A890C68B751514880F83 /* DependencyChecker.swift in Sources */,
 				86428992F6FDCB45C61B963D /* DevDockApp.swift in Sources */,
 				61D4AE511CD5FCA2C1E1E354 /* DevDockStore.swift in Sources */,
 				50F6C705494B968BFD02E966 /* DevProject.swift in Sources */,
 				BDDF226CFE85C8475441F2D1 /* ExternalLauncher.swift in Sources */,
+				21265E7E74A7C8D6422D547C /* FlutterDevices.swift in Sources */,
 				614410490C2E3AC2EB942F78 /* Framework.swift in Sources */,
 				742344D909DD10F2D56E7BC9 /* FrameworkDetector.swift in Sources */,
 				12FE0D0016D06EEAD3B92BF7 /* GitService.swift in Sources */,
+				30598B43E7B1785D03A4B646 /* HealthProbe.swift in Sources */,
 				6E848B32FD410858CFB7EA66 /* LicenseManager.swift in Sources */,
 				051740B67B6ABE2D10E3699A /* LogsView.swift in Sources */,
 				1641BB691DE5129202DCD937 /* MenuBarView.swift in Sources */,
+				F1372A6E9D90E7A2343CA336 /* MobileDevices.swift in Sources */,
 				1E3213B6A0C45D84F5379063 /* OnboardingView.swift in Sources */,
 				D3CC5C16DD24DF60A41A9896 /* PortManager.swift in Sources */,
 				1E5B8E4BC50AEC2635AC1BDC /* ProcessManager.swift in Sources */,
@@ -240,9 +286,15 @@
 				DA03110CC4F8A42308B73FD6 /* ProjectScanner.swift in Sources */,
 				91CCBC0F2E2E2676DE9E7C13 /* ScanRootLocator.swift in Sources */,
 				209299AD4F367D9CF770EE67 /* SettingsView.swift in Sources */,
+				DC0CE1DAB391AA1A4FD9DC90 /* StackRuntimeCatalog.swift in Sources */,
 				FBBA6F547BEC3F1716A6C5A1 /* StartCommandResolver.swift in Sources */,
+				4E424389FF5509286C274693 /* StartFailureReason.swift in Sources */,
+				A3F600BAFDA50F4D73658BB1 /* SwiftProjectStart.swift in Sources */,
 				F6FC66DFA61B793969B9E288 /* Theme.swift in Sources */,
 				9750A898D30202EAC63E6DCB /* Toolchain.swift in Sources */,
+				411432733243E9DC05F86D94 /* UpdateChecker.swift in Sources */,
+				F0AB4D65A8A10BF2C82FA31E /* WhatsNew.swift in Sources */,
+				4DB694DC275DCD1834309C84 /* WhatsNewView.swift in Sources */,
 				001D189661D3F6731DCF5AFB /* WorkspaceEditorView.swift in Sources */,
 				31E9E6467E1B72FF8F4FC28E /* WorkspaceSuggester.swift in Sources */,
 			);
@@ -285,7 +337,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 3;
+				CURRENT_PROJECT_VERSION = 12;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
@@ -304,7 +356,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 0.2.0;
+				MARKETING_VERSION = 0.2.4;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -398,7 +450,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 3;
+				CURRENT_PROJECT_VERSION = 12;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -411,7 +463,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 0.2.0;
+				MARKETING_VERSION = 0.2.4;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";

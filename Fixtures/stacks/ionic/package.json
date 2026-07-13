@@ -1,0 +1,6 @@
+{
+  "name": "fixture-ionic",
+  "private": true,
+  "scripts": { "dev": "echo fixture" },
+  "dependencies": { "@ionic/react": "*" }
+}

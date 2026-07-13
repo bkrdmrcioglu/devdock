@@ -1,0 +1,6 @@
+{
+  "name": "fixture-remix",
+  "private": true,
+  "scripts": { "dev": "echo fixture" },
+  "dependencies": { "@remix-run/react": "*" }
+}

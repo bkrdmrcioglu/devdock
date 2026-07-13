@@ -86,6 +86,9 @@ enum ScanRootLocator {
         let markers: Set<String> = [
             "package.json", "artisan", "manage.py", "Cargo.toml",
             "go.mod", "Gemfile", "composer.json", "pyproject.toml",
+            "pubspec.yaml", "pom.xml", "build.gradle", "build.gradle.kts",
+            "settings.gradle", "settings.gradle.kts", "Package.swift",
+            "app.py", "requirements.txt", "mix.exs",
         ]
         let skip: Set<String> = [
             "node_modules", ".git", "vendor", ".next", "dist", "build",

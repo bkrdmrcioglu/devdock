@@ -52,7 +52,7 @@ Use: `https://bkrdmrcioglu.github.io/devdock-site/`
 
 App zip (not source) is published on the public site repo Releases:
 
-https://github.com/bkrdmrcioglu/devdock-site/releases/download/v0.2.0/DevDock-0.2.0.zip
+https://github.com/bkrdmrcioglu/devdock-site/releases/download/v0.2.4/DevDock-0.2.4.zip
 
 ### Homebrew
 

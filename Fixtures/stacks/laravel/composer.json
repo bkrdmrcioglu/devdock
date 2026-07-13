@@ -1,0 +1,1 @@
+{ "name": "fixture/laravel", "require": { "laravel/framework": "*" } }

@@ -1,0 +1,6 @@
+{
+  "name": "fixture-sveltekit",
+  "private": true,
+  "scripts": { "dev": "echo fixture" },
+  "dependencies": { "@sveltejs/kit": "*" }
+}

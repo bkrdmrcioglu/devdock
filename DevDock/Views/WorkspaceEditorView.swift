@@ -8,12 +8,60 @@ struct WorkspaceEditorView: View {
     @State private var name: String = ""
     @State private var selectedIDs: Set<UUID> = []
     @State private var openBrowsers = false
+    @State private var isMorningRoutine = false
     @State private var editingID: UUID?
 
     private var isEditing: Bool { editingID != nil }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 18) {
+        VStack(alignment: .leading, spacing: 0) {
+            header
+                .padding(.horizontal, 24)
+                .padding(.top, 20)
+                .padding(.bottom, 12)
+
+            if store.canUseWorkspaces {
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 14) {
+                        if !store.workspaceSuggestions.isEmpty {
+                            suggestionsSection
+                        }
+
+                        if !store.workspaceActivityMessage.isEmpty {
+                            activityBanner
+                        }
+
+                        if !store.settings.workspaces.isEmpty {
+                            existingWorkspacesSection
+                        }
+
+                        Divider().overlay(DevDockTheme.line)
+
+                        formSection
+                    }
+                    .padding(.horizontal, 24)
+                    .padding(.bottom, 16)
+                }
+
+                Divider().overlay(DevDockTheme.line)
+
+                footerBar
+                    .padding(.horizontal, 24)
+                    .padding(.vertical, 14)
+            } else {
+                proUpsell
+                    .padding(24)
+                Spacer(minLength: 0)
+            }
+        }
+        .frame(width: 580, height: 720)
+        .background(DevDockTheme.ink)
+        .foregroundStyle(DevDockTheme.chalk)
+        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+    }
+
+    private var header: some View {
+        VStack(alignment: .leading, spacing: 8) {
             HStack {
                 Text("Workspaces")
                     .font(.system(size: 22, weight: .bold, design: .rounded))
@@ -22,77 +70,49 @@ struct WorkspaceEditorView: View {
                     .buttonStyle(GhostButtonStyle())
             }
 
-            Text("Group API + frontend + admin and start them together.")
+            Text("Group API + web + mobile and launch them together. Mark one as your morning routine.")
                 .font(.system(size: 12))
                 .foregroundStyle(DevDockTheme.mist)
-
-            if store.canUseWorkspaces {
-                proWorkspaceContent
-            } else {
-                VStack(alignment: .leading, spacing: 10) {
-                    Text("Workspaces are a Pro feature")
-                        .font(.system(size: 15, weight: .bold, design: .rounded))
-                    Text("Free plan covers \(LicenseLimits.freeProjectCap) projects. Upgrade to group stacks and launch them together.")
-                        .font(.system(size: 12))
-                        .foregroundStyle(DevDockTheme.mist)
-                    Button("Buy Pro — $29") {
-                        NSWorkspace.shared.open(LicenseLimits.buyURL)
-                    }
-                    .buttonStyle(AccentButtonStyle())
-                }
-                .padding(14)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .background(DevDockTheme.panel)
-                .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-                Spacer()
-            }
+                .fixedSize(horizontal: false, vertical: true)
         }
-        .padding(24)
-        .frame(width: 560, height: 680)
-        .background(DevDockTheme.ink)
-        .foregroundStyle(DevDockTheme.chalk)
     }
 
-    @ViewBuilder
-    private var proWorkspaceContent: some View {
-            if !store.workspaceSuggestions.isEmpty {
-                suggestionsSection
+    private var activityBanner: some View {
+        HStack(spacing: 8) {
+            if store.isLaunchingWorkspace {
+                ProgressView()
+                    .controlSize(.small)
             }
+            Text(store.workspaceActivityMessage)
+                .font(.system(size: 12, weight: .medium))
+                .foregroundStyle(DevDockTheme.accent)
+                .lineLimit(2)
+        }
+        .padding(10)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(DevDockTheme.panelElevated)
+        .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+    }
 
-            if !store.workspaceActivityMessage.isEmpty {
-                HStack(spacing: 8) {
-                    if store.isLaunchingWorkspace {
-                        ProgressView()
-                            .controlSize(.small)
-                    }
-                    Text(store.workspaceActivityMessage)
-                        .font(.system(size: 12, weight: .medium))
-                        .foregroundStyle(DevDockTheme.accent)
-                }
-                .padding(10)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .background(DevDockTheme.panelElevated)
-                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+    private var existingWorkspacesSection: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("Your workspaces")
+                .font(.system(size: 11, weight: .semibold))
+                .foregroundStyle(DevDockTheme.mist)
+
+            ForEach(store.settings.workspaces) { workspace in
+                workspaceCard(workspace)
             }
+        }
+    }
 
-            if !store.settings.workspaces.isEmpty {
-                ScrollView {
-                    VStack(spacing: 8) {
-                        ForEach(store.settings.workspaces) { workspace in
-                            workspaceCard(workspace)
-                        }
-                    }
-                }
-                .frame(maxHeight: 200)
-            }
-
-            Divider().overlay(DevDockTheme.line)
-
+    private var formSection: some View {
+        VStack(alignment: .leading, spacing: 10) {
             Text(isEditing ? "Edit workspace" : "New workspace")
                 .font(.system(size: 13, weight: .semibold))
                 .foregroundStyle(DevDockTheme.mist)
 
-            TextField("Name (e.g. CRM Stack)", text: $name)
+            TextField("Name (e.g. Morning Stack)", text: $name)
                 .textFieldStyle(.plain)
                 .padding(10)
                 .background(DevDockTheme.panelElevated)
@@ -102,49 +122,81 @@ struct WorkspaceEditorView: View {
                 .toggleStyle(.checkbox)
                 .foregroundStyle(DevDockTheme.chalk)
 
+            Toggle("Morning routine (sidebar / menu bar)", isOn: $isMorningRoutine)
+                .toggleStyle(.checkbox)
+                .foregroundStyle(DevDockTheme.chalk)
+                .help("Only one workspace can be the morning routine.")
+
             Text("Projects")
                 .font(.system(size: 11, weight: .semibold))
                 .foregroundStyle(DevDockTheme.mist)
+                .padding(.top, 4)
 
-            ScrollView {
-                VStack(alignment: .leading, spacing: 6) {
-                    ForEach(store.projects) { project in
-                        Toggle(isOn: Binding(
-                            get: { selectedIDs.contains(project.id) },
-                            set: { on in
-                                if on { selectedIDs.insert(project.id) } else { selectedIDs.remove(project.id) }
-                            }
-                        )) {
-                            HStack {
-                                Text(project.name)
-                                    .font(.system(size: 13, weight: .medium))
-                                Text(project.framework.rawValue)
-                                    .font(.system(size: 11))
-                                    .foregroundStyle(DevDockTheme.mist)
-                                Spacer()
-                                Text(project.displayPort)
-                                    .font(DevDockTheme.mono)
-                                    .foregroundStyle(DevDockTheme.mist)
-                            }
+            VStack(alignment: .leading, spacing: 6) {
+                ForEach(store.projects) { project in
+                    Toggle(isOn: Binding(
+                        get: { selectedIDs.contains(project.id) },
+                        set: { on in
+                            if on { selectedIDs.insert(project.id) } else { selectedIDs.remove(project.id) }
                         }
-                        .toggleStyle(.checkbox)
+                    )) {
+                        HStack(spacing: 8) {
+                            Text(project.name)
+                                .font(.system(size: 13, weight: .medium))
+                                .lineLimit(1)
+                            Text(project.framework.rawValue)
+                                .font(.system(size: 11))
+                                .foregroundStyle(DevDockTheme.mist)
+                                .lineLimit(1)
+                            Spacer(minLength: 4)
+                            Text(project.displayPort)
+                                .font(DevDockTheme.mono)
+                                .foregroundStyle(DevDockTheme.mist)
+                                .lineLimit(1)
+                                .layoutPriority(1)
+                        }
                     }
+                    .toggleStyle(.checkbox)
                 }
             }
-            .frame(maxHeight: 200)
+        }
+    }
 
-            HStack {
-                if isEditing {
-                    Button("Cancel edit") { resetForm() }
-                        .buttonStyle(GhostButtonStyle())
-                }
-                Spacer()
-                Button(isEditing ? "Save changes" : "Create Workspace") {
-                    saveForm()
-                }
-                .buttonStyle(AccentButtonStyle())
-                .disabled(name.trimmingCharacters(in: .whitespaces).isEmpty || selectedIDs.isEmpty)
+    private var footerBar: some View {
+        HStack {
+            if isEditing {
+                Button("Cancel edit") { resetForm() }
+                    .buttonStyle(GhostButtonStyle())
             }
+            Text("\(selectedIDs.count) selected")
+                .font(.system(size: 11))
+                .foregroundStyle(DevDockTheme.mist)
+            Spacer()
+            Button(isEditing ? "Save changes" : "Create Workspace") {
+                saveForm()
+            }
+            .buttonStyle(AccentButtonStyle())
+            .disabled(name.trimmingCharacters(in: .whitespaces).isEmpty || selectedIDs.isEmpty)
+        }
+    }
+
+    private var proUpsell: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("Workspaces are a Pro feature")
+                .font(.system(size: 15, weight: .bold, design: .rounded))
+            Text("Free plan covers \(LicenseLimits.freeProjectCap) projects. Upgrade to group stacks and launch them together.")
+                .font(.system(size: 12))
+                .foregroundStyle(DevDockTheme.mist)
+                .fixedSize(horizontal: false, vertical: true)
+            Button("Buy Pro — $29") {
+                NSWorkspace.shared.open(LicenseLimits.buyURL)
+            }
+            .buttonStyle(AccentButtonStyle())
+        }
+        .padding(14)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(DevDockTheme.panel)
+        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
     }
 
     private var suggestionsSection: some View {
@@ -153,21 +205,26 @@ struct WorkspaceEditorView: View {
                 .font(.system(size: 11, weight: .semibold))
                 .foregroundStyle(DevDockTheme.warn)
 
-            ForEach(store.workspaceSuggestions.prefix(6)) { suggestion in
-                HStack(spacing: 10) {
+            ForEach(store.workspaceSuggestions.prefix(8)) { suggestion in
+                HStack(alignment: .center, spacing: 10) {
                     VStack(alignment: .leading, spacing: 2) {
                         Text(suggestion.name)
                             .font(.system(size: 13, weight: .semibold))
-                        Text(suggestion.memberNames.joined(separator: " · "))
+                            .lineLimit(1)
+                        Text("\(suggestion.roleSummary) · \(suggestion.memberNames.joined(separator: " · "))")
                             .font(.system(size: 11))
                             .foregroundStyle(DevDockTheme.mist)
                             .lineLimit(1)
+                            .truncationMode(.tail)
                     }
-                    Spacer()
+                    .frame(maxWidth: .infinity, alignment: .leading)
+
                     Button("Add") {
                         store.applyWorkspaceSuggestion(suggestion)
                     }
                     .buttonStyle(AccentButtonStyle())
+                    .fixedSize()
+                    .layoutPriority(1)
                 }
                 .padding(10)
                 .background(DevDockTheme.panel.opacity(0.9))
@@ -188,21 +245,33 @@ struct WorkspaceEditorView: View {
         return VStack(alignment: .leading, spacing: 10) {
             HStack(alignment: .firstTextBaseline) {
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(workspace.name)
-                        .font(.system(size: 14, weight: .semibold))
+                    HStack(spacing: 6) {
+                        if workspace.isMorningRoutine {
+                            Image(systemName: "sun.max.fill")
+                                .font(.system(size: 11, weight: .bold))
+                                .foregroundStyle(DevDockTheme.warn)
+                        }
+                        Text(workspace.name)
+                            .font(.system(size: 14, weight: .semibold))
+                            .lineLimit(1)
+                    }
                     Text(names.isEmpty ? "\(total) projects (missing)" : names.joined(separator: " · "))
                         .font(.system(size: 11))
                         .foregroundStyle(DevDockTheme.mist)
                         .lineLimit(2)
+                        .truncationMode(.tail)
                 }
-                Spacer()
+                .frame(maxWidth: .infinity, alignment: .leading)
+
                 Text("\(alive)/\(total) up")
                     .font(.system(size: 11, weight: .bold, design: .monospaced))
                     .foregroundStyle(alive > 0 ? DevDockTheme.accent : DevDockTheme.mist)
+                    .fixedSize()
+                    .layoutPriority(1)
             }
 
             HStack(spacing: 8) {
-                Button("Start all") {
+                Button(workspace.isMorningRoutine ? "Start morning" : "Start all") {
                     store.startWorkspace(workspace)
                 }
                 .buttonStyle(AccentButtonStyle())
@@ -218,7 +287,7 @@ struct WorkspaceEditorView: View {
                 }
                 .buttonStyle(GhostButtonStyle())
 
-                Spacer()
+                Spacer(minLength: 0)
 
                 Button {
                     store.deleteWorkspace(workspace)
@@ -244,6 +313,7 @@ struct WorkspaceEditorView: View {
         name = workspace.name
         selectedIDs = Set(workspace.projectIDs)
         openBrowsers = workspace.openBrowsers
+        isMorningRoutine = workspace.isMorningRoutine
     }
 
     private func resetForm() {
@@ -251,6 +321,7 @@ struct WorkspaceEditorView: View {
         name = ""
         selectedIDs = []
         openBrowsers = false
+        isMorningRoutine = false
     }
 
     private func saveForm() {
@@ -262,9 +333,15 @@ struct WorkspaceEditorView: View {
             existing.name = trimmed
             existing.projectIDs = Array(selectedIDs)
             existing.openBrowsers = openBrowsers
+            existing.isMorningRoutine = isMorningRoutine
             store.updateWorkspace(existing)
         } else {
-            store.addWorkspace(name: trimmed, projectIDs: Array(selectedIDs), openBrowsers: openBrowsers)
+            store.addWorkspace(
+                name: trimmed,
+                projectIDs: Array(selectedIDs),
+                openBrowsers: openBrowsers,
+                isMorningRoutine: isMorningRoutine
+            )
         }
         resetForm()
     }

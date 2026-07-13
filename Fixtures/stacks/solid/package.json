@@ -1,0 +1,6 @@
+{
+  "name": "fixture-solid",
+  "private": true,
+  "scripts": { "dev": "echo fixture" },
+  "dependencies": { "solid-js": "*" }
+}

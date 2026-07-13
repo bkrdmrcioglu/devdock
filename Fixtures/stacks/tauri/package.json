@@ -1,0 +1,6 @@
+{
+  "name": "fixture-tauri",
+  "private": true,
+  "scripts": { "dev": "echo fixture" },
+  "dependencies": { "@tauri-apps/cli": "*" }
+}

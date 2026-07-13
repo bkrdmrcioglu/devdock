@@ -5,38 +5,61 @@ struct ContentView: View {
     @EnvironmentObject private var processes: ProcessManager
     @State private var showWorkspaceSheet = false
     @State private var showSettings = false
+    @State private var showWhatsNew = false
+    /// Bumped when What’s New is dismissed so the NEW badge refreshes.
+    @State private var whatsNewEpoch = 0
 
     var body: some View {
-        NavigationSplitView {
-            sidebar
-                .navigationSplitViewColumnWidth(min: 280, ideal: 320, max: 400)
-        } detail: {
-            if let project = store.selectedProject {
-                ProjectDetailView(project: project)
-            } else {
-                emptyDetail
+        ZStack {
+            NavigationSplitView {
+                sidebar
+                    .navigationSplitViewColumnWidth(min: 280, ideal: 320, max: 400)
+            } detail: {
+                if let project = store.selectedProject {
+                    ProjectDetailView(project: project)
+                } else {
+                    emptyDetail
+                }
+            }
+            .background(DevDockTheme.ink)
+            .onAppear {
+                store.bootstrapIfNeeded()
+                if WhatsNew.shouldPresent {
+                    showWhatsNew = true
+                }
+            }
+            .sheet(isPresented: $showWorkspaceSheet) {
+                WorkspaceEditorView()
+                    .environmentObject(store)
+            }
+            .sheet(isPresented: $showSettings) {
+                SettingsView()
+                    .environmentObject(store)
+                    .environmentObject(store.licenseManager)
+            }
+            .sheet(isPresented: $showWhatsNew) {
+                WhatsNewView(onDismiss: { whatsNewEpoch += 1 })
+            }
+
+            LogsDrawerOverlay()
+                .environmentObject(store)
+                .environmentObject(processes)
+
+            CommandPaletteOverlay()
+                .environmentObject(store)
+                .environmentObject(processes)
+        }
+        .onChange(of: store.showWorkspaceEditorFromPalette) { _, open in
+            if open {
+                showWorkspaceSheet = true
+                store.showWorkspaceEditorFromPalette = false
             }
         }
-        .background(DevDockTheme.ink)
-        .onAppear {
-            store.bootstrapIfNeeded()
-        }
-        .sheet(isPresented: $showWorkspaceSheet) {
-            WorkspaceEditorView()
-                .environmentObject(store)
-        }
-        .sheet(isPresented: $showSettings) {
-            SettingsView()
-                .environmentObject(store)
-                .environmentObject(store.licenseManager)
-        }
-        .sheet(item: Binding(
-            get: { store.showLogsFor.flatMap { id in store.projects.first { $0.id == id } } },
-            set: { store.showLogsFor = $0?.id }
-        )) { project in
-            LogsView(project: project)
-                .environmentObject(processes)
-                .frame(minWidth: 640, minHeight: 420)
+        .onChange(of: store.showWhatsNewFromPalette) { _, open in
+            if open {
+                showWhatsNew = true
+                store.showWhatsNewFromPalette = false
+            }
         }
     }
 
@@ -44,6 +67,9 @@ struct ContentView: View {
         VStack(spacing: 0) {
             header
             searchBar
+            if let update = store.availableUpdate {
+                updateBanner(update)
+            }
             if !store.isPro && store.lockedProjectCount > 0 {
                 upgradeBanner
             }
@@ -59,6 +85,11 @@ struct ContentView: View {
         .background(DevDockTheme.panel)
     }
 
+    private var showsWhatsNewBadge: Bool {
+        _ = whatsNewEpoch
+        return WhatsNew.shouldPresent
+    }
+
     private var upgradeBanner: some View {
         HStack(spacing: 8) {
             Text("+\(store.lockedProjectCount) locked · Pro unlocks all")
@@ -72,30 +103,127 @@ struct ContentView: View {
         .padding(.vertical, 8)
     }
 
-    private var header: some View {
-        HStack(alignment: .firstTextBaseline) {
-            VStack(alignment: .leading, spacing: 2) {
-                Text("DevDock")
-                    .font(DevDockTheme.brandFont)
+    private func updateBanner(_ update: UpdateChecker.ReleaseInfo) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(spacing: 8) {
+                Image(systemName: "arrow.down.circle.fill")
+                    .foregroundStyle(DevDockTheme.accent)
+                Text("DevDock \(update.version) available")
+                    .font(.system(size: 12, weight: .semibold))
                     .foregroundStyle(DevDockTheme.chalk)
-                Text("All your local stacks")
-                    .font(.system(size: 11, weight: .medium))
-                    .foregroundStyle(DevDockTheme.mist)
+                Spacer(minLength: 4)
+                Button {
+                    store.dismissAvailableUpdate()
+                } label: {
+                    Image(systemName: "xmark")
+                        .font(.system(size: 10, weight: .bold))
+                        .foregroundStyle(DevDockTheme.mist)
+                }
+                .buttonStyle(.plain)
+                .help("Dismiss until next version")
             }
-            Spacer()
-            Button {
-                store.rescan()
-            } label: {
-                Image(systemName: store.isScanning ? "arrow.triangle.2.circlepath" : "arrow.clockwise")
-                    .opacity(store.isScanning ? 0.5 : 1)
+            HStack(spacing: 8) {
+                Button("Download") { store.openUpdateDownload() }
+                    .buttonStyle(AccentButtonStyle())
+                Button("Copy brew") { store.copyBrewUpgradeCommand() }
+                    .buttonStyle(GhostButtonStyle())
+                    .help(UpdateChecker.brewUpgradeCommand)
             }
-            .buttonStyle(.plain)
-            .foregroundStyle(DevDockTheme.mist)
-            .help("Rescan project folders")
+        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 10)
+        .background(DevDockTheme.accent.opacity(0.1))
+    }
+
+    private var header: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(alignment: .center, spacing: 8) {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("DevDock")
+                        .font(DevDockTheme.brandFont)
+                        .foregroundStyle(DevDockTheme.chalk)
+                    Text("All your local stacks")
+                        .font(.system(size: 11, weight: .medium))
+                        .foregroundStyle(DevDockTheme.mist)
+                }
+                Spacer(minLength: 8)
+
+                Button {
+                    showWhatsNew = true
+                } label: {
+                    HStack(spacing: 5) {
+                        Image(systemName: "sparkles")
+                            .font(.system(size: 11, weight: .bold))
+                        Text("What’s new")
+                            .font(.system(size: 11, weight: .semibold))
+                        if showsWhatsNewBadge {
+                            Text("NEW")
+                                .font(.system(size: 9, weight: .bold))
+                                .foregroundStyle(DevDockTheme.ink)
+                                .padding(.horizontal, 5)
+                                .padding(.vertical, 2)
+                                .background(DevDockTheme.accent)
+                                .clipShape(RoundedRectangle(cornerRadius: 3, style: .continuous))
+                        }
+                    }
+                    .foregroundStyle(showsWhatsNewBadge ? DevDockTheme.accent : DevDockTheme.mist)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 5)
+                    .background(
+                        (showsWhatsNewBadge ? DevDockTheme.accent : DevDockTheme.mist).opacity(0.12)
+                    )
+                    .clipShape(RoundedRectangle(cornerRadius: 7, style: .continuous))
+                }
+                .buttonStyle(.plain)
+                .help("Release notes & keyboard shortcuts")
+            }
+
+            HStack(spacing: 8) {
+                Button {
+                    store.showCommandPalette = true
+                } label: {
+                    HStack(spacing: 6) {
+                        Image(systemName: "magnifyingglass")
+                            .font(.system(size: 11, weight: .semibold))
+                        Text("Commands")
+                            .font(.system(size: 11, weight: .semibold))
+                        ShortcutKeyCap(AppShortcuts.palette)
+                    }
+                    .foregroundStyle(DevDockTheme.chalk)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 6)
+                    .background(DevDockTheme.panelElevated)
+                    .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+                }
+                .buttonStyle(.plain)
+                .help("Command palette \(AppShortcuts.palette)")
+
+                Button {
+                    store.rescan()
+                } label: {
+                    HStack(spacing: 6) {
+                        Image(systemName: store.isScanning ? "arrow.triangle.2.circlepath" : "arrow.clockwise")
+                            .font(.system(size: 11, weight: .semibold))
+                            .opacity(store.isScanning ? 0.5 : 1)
+                        Text("Rescan")
+                            .font(.system(size: 11, weight: .semibold))
+                        ShortcutKeyCap(AppShortcuts.rescan)
+                    }
+                    .foregroundStyle(DevDockTheme.chalk)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 6)
+                    .background(DevDockTheme.panelElevated)
+                    .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+                }
+                .buttonStyle(.plain)
+                .help("Rescan project folders \(AppShortcuts.rescan)")
+
+                Spacer(minLength: 0)
+            }
         }
         .padding(.horizontal, 16)
-        .padding(.top, 18)
-        .padding(.bottom, 12)
+        .padding(.top, 16)
+        .padding(.bottom, 10)
     }
 
     private var searchBar: some View {
@@ -103,7 +231,7 @@ struct ContentView: View {
             HStack(spacing: 8) {
                 Image(systemName: "magnifyingglass")
                     .foregroundStyle(DevDockTheme.mist)
-                TextField("Search projects", text: $store.searchText)
+                TextField("Search projects · \(AppShortcuts.palette) for commands", text: $store.searchText)
                     .textFieldStyle(.plain)
                     .foregroundStyle(DevDockTheme.chalk)
             }
@@ -111,31 +239,39 @@ struct ContentView: View {
             .background(DevDockTheme.panelElevated)
             .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
 
-            HStack(spacing: 6) {
-                ForEach(SidebarFilter.allCases) { filter in
-                    let selected = store.sidebarFilter == filter
-                    Button {
-                        store.sidebarFilter = filter
-                    } label: {
-                        Text(filter.rawValue)
-                            .font(.system(size: 11, weight: .semibold))
-                            .padding(.horizontal, 10)
-                            .padding(.vertical, 5)
-                            .background(selected ? DevDockTheme.accent.opacity(0.22) : DevDockTheme.panelElevated)
-                            .foregroundStyle(selected ? DevDockTheme.accent : DevDockTheme.mist)
-                            .clipShape(Capsule())
-                            .overlay(
-                                Capsule()
-                                    .stroke(selected ? DevDockTheme.accent.opacity(0.5) : Color.clear, lineWidth: 1)
-                            )
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 6) {
+                    ForEach(SidebarFilter.allCases) { filter in
+                        let selected = store.sidebarFilter == filter
+                        Button {
+                            store.sidebarFilter = filter
+                        } label: {
+                            Text(filter.rawValue)
+                                .font(.system(size: 11, weight: .semibold))
+                                .lineLimit(1)
+                                .fixedSize(horizontal: true, vertical: false)
+                                .padding(.horizontal, 10)
+                                .padding(.vertical, 5)
+                                .background(selected ? DevDockTheme.accent.opacity(0.22) : DevDockTheme.panelElevated)
+                                .foregroundStyle(selected ? DevDockTheme.accent : DevDockTheme.mist)
+                                .clipShape(Capsule())
+                                .overlay(
+                                    Capsule()
+                                        .stroke(selected ? DevDockTheme.accent.opacity(0.5) : Color.clear, lineWidth: 1)
+                                )
+                        }
+                        .buttonStyle(.plain)
+                        .fixedSize()
                     }
-                    .buttonStyle(.plain)
-                }
-                Spacer()
-                if store.runningCount > 0 {
-                    Text("\(store.runningCount) up")
-                        .font(.system(size: 10, weight: .bold, design: .monospaced))
-                        .foregroundStyle(DevDockTheme.accent)
+
+                    if store.runningCount > 0 {
+                        Text("\(store.runningCount) up")
+                            .font(.system(size: 10, weight: .bold, design: .monospaced))
+                            .foregroundStyle(DevDockTheme.accent)
+                            .lineLimit(1)
+                            .fixedSize()
+                            .padding(.leading, 4)
+                    }
                 }
             }
         }
@@ -159,13 +295,35 @@ struct ContentView: View {
 
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 8) {
+                    if let morning = store.morningRoutine {
+                        Button {
+                            store.startMorningRoutine()
+                        } label: {
+                            HStack(spacing: 6) {
+                                Image(systemName: "sun.max.fill")
+                                    .font(.system(size: 10))
+                                Text("Morning")
+                                    .font(.system(size: 11, weight: .semibold))
+                                ShortcutKeyCap(AppShortcuts.morning)
+                            }
+                            .padding(.horizontal, 10)
+                            .padding(.vertical, 6)
+                            .background(DevDockTheme.warn.opacity(0.22))
+                            .clipShape(Capsule())
+                            .foregroundStyle(DevDockTheme.chalk)
+                        }
+                        .buttonStyle(.plain)
+                        .disabled(store.isLaunchingWorkspace)
+                        .help("Start morning routine · \(morning.name) · \(AppShortcuts.morning)")
+                    }
+
                     ForEach(store.settings.workspaces) { workspace in
                         let alive = store.workspaceAliveCount(workspace)
                         Button {
                             store.startWorkspace(workspace)
                         } label: {
                             HStack(spacing: 6) {
-                                Image(systemName: "square.stack.3d.up.fill")
+                                Image(systemName: workspace.isMorningRoutine ? "sun.max.fill" : "square.stack.3d.up.fill")
                                     .font(.system(size: 10))
                                 Text(workspace.name)
                                     .font(.system(size: 11, weight: .semibold))
@@ -263,11 +421,28 @@ struct ContentView: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
             } else {
                 List(selection: $store.selectedProjectID) {
-                    ForEach(store.filteredProjects) { project in
-                        ProjectRowView(project: project)
-                            .tag(project.id)
-                            .listRowBackground(Color.clear)
-                            .listRowInsets(EdgeInsets(top: 4, leading: 8, bottom: 4, trailing: 8))
+                    ForEach(store.filteredProjectGroups) { group in
+                        Section {
+                            ForEach(group.projects) { project in
+                                ProjectRowView(project: project)
+                                    .tag(project.id)
+                                    .listRowBackground(Color.clear)
+                                    .listRowInsets(EdgeInsets(top: 4, leading: 8, bottom: 4, trailing: 8))
+                            }
+                        } header: {
+                            HStack(spacing: 6) {
+                                Image(systemName: group.systemImage)
+                                    .font(.system(size: 10, weight: .bold))
+                                Text(group.title)
+                                    .font(.system(size: 11, weight: .bold, design: .rounded))
+                                Text("\(group.projects.count)")
+                                    .font(.system(size: 10, weight: .bold, design: .monospaced))
+                                    .foregroundStyle(DevDockTheme.mist)
+                                Spacer(minLength: 0)
+                            }
+                            .foregroundStyle(DevDockTheme.mist)
+                            .textCase(nil)
+                        }
                     }
                 }
                 .listStyle(.sidebar)
@@ -317,7 +492,7 @@ struct ContentView: View {
     }
 
     private var emptyDetail: some View {
-        VStack(spacing: 12) {
+        VStack(spacing: 14) {
             Image(systemName: "shippingbox")
                 .font(.system(size: 40))
                 .foregroundStyle(DevDockTheme.mist)
@@ -330,13 +505,41 @@ struct ContentView: View {
                 .foregroundStyle(DevDockTheme.mist)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 40)
+
             HStack(spacing: 10) {
                 Button("Add Folder…") { store.addScanFoldersViaPicker() }
                     .buttonStyle(AccentButtonStyle())
                 Button("Scan Now") { store.rescan() }
                     .buttonStyle(GhostButtonStyle())
             }
+            .padding(.top, 4)
+
+            VStack(alignment: .leading, spacing: 8) {
+                Text("Shortcuts")
+                    .font(.system(size: 11, weight: .bold))
+                    .foregroundStyle(DevDockTheme.mist)
+                ForEach(AppShortcuts.rows) { row in
+                    HStack {
+                        Text(row.title)
+                            .font(.system(size: 12, weight: .medium))
+                            .foregroundStyle(DevDockTheme.chalk)
+                        Spacer()
+                        ShortcutKeyCap(row.keys)
+                    }
+                }
+            }
+            .padding(14)
+            .frame(maxWidth: 320)
+            .background(DevDockTheme.panel)
+            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
             .padding(.top, 8)
+
+            Button {
+                showWhatsNew = true
+            } label: {
+                Label("What’s new in \(AppInfo.shortVersion)", systemImage: "sparkles")
+            }
+            .buttonStyle(GhostButtonStyle())
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(DevDockTheme.ink)
@@ -352,6 +555,7 @@ struct AccentButtonStyle: ButtonStyle {
             .padding(.vertical, 8)
             .background(DevDockTheme.accent.opacity(configuration.isPressed ? 0.75 : 1))
             .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+            .shadow(color: DevDockTheme.accent.opacity(configuration.isPressed ? 0 : 0.25), radius: 8, y: 2)
     }
 }
 

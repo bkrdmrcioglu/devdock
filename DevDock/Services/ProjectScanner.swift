@@ -6,7 +6,7 @@ struct ProjectScanner {
         "node_modules", ".git", "vendor", "Pods", "DerivedData",
         ".build", "dist", "build", ".next", "target", "venv", ".venv",
         "Carthage", "Coverage", "__pycache__", ".turbo", ".cache",
-        ".yarn", ".pnpm-store", "coverage",
+        ".yarn", ".pnpm-store", "coverage", ".dart_tool",
     ]
 
     /// Child folder names that usually hold real apps inside a monorepo.
@@ -143,13 +143,47 @@ struct ProjectScanner {
     }
 
     private func isProjectRoot(_ path: String) -> Bool {
-        let markers = [
-            "package.json", "artisan", "manage.py", "Cargo.toml", "go.mod",
-            "Gemfile", "composer.json", "pyproject.toml",
-        ]
-        return markers.contains {
-            FileManager.default.fileExists(atPath: (path as NSString).appendingPathComponent($0))
+        // Expo / RN ship android/ + ios/ shells — don't list them as separate Kotlin/Swift apps.
+        if isNestedExpoReactNativeShell(path) {
+            return false
         }
+
+        let fileMarkers = [
+            "package.json", "artisan", "manage.py", "Cargo.toml", "go.mod",
+            "Gemfile", "composer.json", "pyproject.toml", "pubspec.yaml",
+            "mix.exs", "angular.json", "nuxt.config.ts", "nuxt.config.js",
+            "pom.xml", "build.gradle", "build.gradle.kts",
+            "settings.gradle", "settings.gradle.kts", "Package.swift",
+            "app.py", "wsgi.py", "requirements.txt", "Pipfile",
+        ]
+        if fileMarkers.contains(where: {
+            FileManager.default.fileExists(atPath: (path as NSString).appendingPathComponent($0))
+        }) {
+            return true
+        }
+        // .NET / Xcode: extension-based markers in the folder
+        guard let items = try? FileManager.default.contentsOfDirectory(atPath: path) else {
+            return false
+        }
+        return items.contains {
+            $0.hasSuffix(".csproj") || $0.hasSuffix(".fsproj") || $0.hasSuffix(".sln")
+                || $0.hasSuffix(".xcodeproj") || $0.hasSuffix(".xcworkspace")
+        }
+    }
+
+    /// `app/android` under an Expo/RN package.json should not be its own DevDock project.
+    private func isNestedExpoReactNativeShell(_ path: String) -> Bool {
+        let leaf = (path as NSString).lastPathComponent.lowercased()
+        guard leaf == "android" || leaf == "ios" else { return false }
+        let parent = (path as NSString).deletingLastPathComponent
+        let pkgPath = (parent as NSString).appendingPathComponent("package.json")
+        guard let data = try? Data(contentsOf: URL(fileURLWithPath: pkgPath)),
+              let text = String(data: data, encoding: .utf8)?.lowercased() else {
+            return false
+        }
+        return text.contains("\"expo\"")
+            || text.contains("\"react-native\"")
+            || text.contains("expo-router")
     }
 
     private func isMonorepoRoot(_ path: String) -> Bool {

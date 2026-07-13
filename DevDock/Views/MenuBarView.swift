@@ -3,12 +3,14 @@ import AppKit
 
 struct MenuBarView: View {
     @EnvironmentObject private var store: DevDockStore
+    @EnvironmentObject private var processes: ProcessManager
 
     var body: some View {
         let running = store.projects.filter { store.status(for: $0).isAlive }
         let managed = running.filter { store.status(for: $0) == .running }
         let external = running.filter { store.status(for: $0) == .external }
         let favorites = store.projects.filter(\.isFavorite).prefix(8)
+        let readyCount = running.filter { processes.portHealth(for: $0.id) == .ready }.count
 
         if store.isLaunchingWorkspace {
             Text(store.workspaceActivityMessage.isEmpty ? "Starting workspace…" : store.workspaceActivityMessage)
@@ -16,9 +18,10 @@ struct MenuBarView: View {
         }
 
         if !running.isEmpty {
-            Text("Running · \(running.count)")
+            Text(readyCount > 0 ? "Running · \(running.count) · \(readyCount) ready" : "Running · \(running.count)")
             ForEach(managed) { project in
-                Button("● \(project.name)") {
+                let mark = processes.portHealth(for: project.id) == .ready ? "●" : "…"
+                Button("\(mark) \(project.name)") {
                     reveal(project)
                 }
                 Button("    Stop") {
@@ -26,7 +29,8 @@ struct MenuBarView: View {
                 }
             }
             ForEach(external) { project in
-                Button("◐ \(project.name) (external)") {
+                let mark = processes.portHealth(for: project.id) == .ready ? "●" : "◐"
+                Button("\(mark) \(project.name) (external)") {
                     reveal(project)
                 }
                 Button("    Stop Port") {
@@ -46,9 +50,16 @@ struct MenuBarView: View {
         if !store.settings.workspaces.isEmpty {
             Text("Workspaces")
             if store.canUseWorkspaces {
+                if let morning = store.morningRoutine {
+                    Button("☀ Morning · \(morning.name)") {
+                        store.startMorningRoutine()
+                    }
+                    .disabled(store.isLaunchingWorkspace)
+                }
                 ForEach(store.settings.workspaces) { workspace in
                     let alive = store.workspaceAliveCount(workspace)
-                    Button("Start \(workspace.name)") {
+                    let prefix = workspace.isMorningRoutine ? "☀ " : ""
+                    Button("\(prefix)Start \(workspace.name)") {
                         store.startWorkspace(workspace)
                     }
                     .disabled(store.isLaunchingWorkspace)

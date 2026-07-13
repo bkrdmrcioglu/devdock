@@ -1,0 +1,6 @@
+{
+  "name": "fixture-koa",
+  "private": true,
+  "scripts": { "dev": "echo fixture" },
+  "dependencies": { "koa": "*" }
+}

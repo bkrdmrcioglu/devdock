@@ -1,0 +1,6 @@
+{
+  "name": "fixture-vue",
+  "private": true,
+  "scripts": { "dev": "echo fixture" },
+  "dependencies": { "vue": "*" }
+}

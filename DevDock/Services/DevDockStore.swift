@@ -1,5 +1,6 @@
 import Foundation
 import Combine
+import AppKit
 
 @MainActor
 final class DevDockStore: ObservableObject {
@@ -11,6 +12,11 @@ final class DevDockStore: ObservableObject {
     @Published var isScanning: Bool = false
     @Published var showOnboarding: Bool
     @Published var showLogsFor: UUID?
+    @Published var showCommandPalette = false
+    /// Set by command palette to open WorkspaceEditor from ContentView.
+    @Published var showWorkspaceEditorFromPalette = false
+    /// Set by command palette to open What’s New from ContentView.
+    @Published var showWhatsNewFromPalette = false
     @Published var gitCache: [UUID: GitInfo] = [:]
     @Published var lastScanMessage: String = ""
     @Published var scanError: String?
@@ -21,12 +27,24 @@ final class DevDockStore: ObservableObject {
     /// Ports that are busy but could not be attributed to a single project (ambiguous).
     @Published private(set) var ambiguousBusyPorts: Set<Int> = []
 
+    /// Newer GitHub release than this build (nil when up to date / dismissed / unknown).
+    @Published var availableUpdate: UpdateChecker.ReleaseInfo?
+    @Published var isCheckingUpdate = false
+    /// Last manual check status for Settings.
+    @Published var updateCheckMessage: String = ""
+
     let processManager = ProcessManager()
     let licenseManager = LicenseManager()
     private var resourceTimer: Timer?
     private var portPollTimer: Timer?
+    private var idleTimer: Timer?
+    private var readyObserver: NSObjectProtocol?
     private var didAutoBootstrap = false
+    private var didLaunchMorning = false
     private var isPollingPorts = false
+    private var didAutoCheckUpdates = false
+
+    private static let dismissedUpdateKey = "devdock.update.dismissedVersion"
 
     init() {
         let loaded = Persistence.load()
@@ -34,8 +52,44 @@ final class DevDockStore: ObservableObject {
         self.projects = loaded.knownProjects
         self.showOnboarding = !loaded.hasCompletedOnboarding
         applyFavorites()
+        refreshProjectMetadata()
         startResourceTimer()
         startPortPolling()
+        startIdleTimer()
+        observeReadyNotifications()
+        if settings.notifyOnReady {
+            AppNotifier.requestPermissionIfNeeded()
+        }
+    }
+
+    /// Re-detect framework/port/start command for cached projects (fixes stale React/3000 on Expo apps).
+    /// Merges into the *current* list by path so a concurrent rescan (new Flutter apps, etc.) is not wiped.
+    func refreshProjectMetadata() {
+        let snapshot = projects
+        Task.detached(priority: .utility) {
+            let refreshedByPath: [String: (Framework, Int?, [String])] = Dictionary(
+                uniqueKeysWithValues: snapshot.map { project in
+                    let framework = FrameworkDetector.detect(at: project.path)
+                    let port = FrameworkDetector.detectPort(at: project.path, framework: framework)
+                    let command = StartCommandResolver.resolve(at: project.path, framework: framework, port: port)
+                    return (project.path, (framework, port, command))
+                }
+            )
+            await MainActor.run {
+                self.projects = self.projects.map { project in
+                    guard let meta = refreshedByPath[project.path] else { return project }
+                    var next = project
+                    next.framework = meta.0
+                    next.port = meta.1
+                    next.detectedStartCommand = meta.2
+                    return next
+                }
+                self.settings.knownProjects = self.projects
+                self.applyFavorites()
+                self.persist()
+                self.objectWillChange.send()
+            }
+        }
     }
 
     /// Managed process status, or `.external` when this project's path owns the live port.
@@ -93,6 +147,10 @@ final class DevDockStore: ObservableObject {
         switch sidebarFilter {
         case .all:
             break
+        case .web, .mobile, .api:
+            if let role = sidebarFilter.stackRole {
+                base = base.filter { $0.framework.stackRole == role }
+            }
         case .running:
             base = base.filter { status(for: $0).isAlive }
         case .favorites:
@@ -107,6 +165,7 @@ final class DevDockStore: ObservableObject {
                 $0.name.localizedCaseInsensitiveContains(q)
                     || $0.framework.rawValue.localizedCaseInsensitiveContains(q)
                     || $0.path.localizedCaseInsensitiveContains(q)
+                    || $0.framework.stackRole.title.localizedCaseInsensitiveContains(q)
             }
         }
         return filtered.sorted {
@@ -115,6 +174,17 @@ final class DevDockStore: ObservableObject {
             let b = status(for: $1).isAlive
             if a != b { return a && !b }
             return $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending
+        }
+    }
+
+    /// Sidebar sections: Web → Mobile → API → Desktop → Other.
+    var filteredProjectGroups: [ProjectGroup] {
+        let projects = filteredProjects
+        let order: [Framework.StackRole] = [.web, .mobile, .api, .desktop, .other]
+        return order.compactMap { role in
+            let items = projects.filter { $0.framework.stackRole == role }
+            guard !items.isEmpty else { return nil }
+            return ProjectGroup(id: role.rawValue, role: role, projects: items)
         }
     }
 
@@ -154,17 +224,118 @@ final class DevDockStore: ObservableObject {
         if settings.scanRoots.isEmpty {
             lastScanMessage = "No scan folders yet — add one to continue."
             persist()
+            scheduleUpdateCheckIfNeeded()
             return
         }
 
         persist()
-        if projects.isEmpty {
-            rescan()
-        } else {
-            let offline = settings.scanRoots.filter { !FileManager.default.fileExists(atPath: $0) }
-            if !offline.isEmpty {
-                lastScanMessage = "\(projects.count) cached · \(offline.count) folder(s) offline"
+        // Always rescan on launch so newly supported markers (e.g. Flutter pubspec)
+        // appear without requiring a manual Rescan. Offline roots stay cached via merge.
+        let offline = settings.scanRoots.filter { !FileManager.default.fileExists(atPath: $0) }
+        if !offline.isEmpty && !projects.isEmpty {
+            lastScanMessage = "\(projects.count) cached · \(offline.count) folder(s) offline"
+        }
+        rescan()
+
+        // After first UI bootstrap, optionally kick morning routine.
+        if settings.startMorningOnLaunch, !didLaunchMorning, morningRoutine != nil {
+            didLaunchMorning = true
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) { [weak self] in
+                self?.startMorningRoutine()
             }
+        }
+
+        scheduleUpdateCheckIfNeeded()
+    }
+
+    private func scheduleUpdateCheckIfNeeded() {
+        guard !didAutoCheckUpdates else { return }
+        didAutoCheckUpdates = true
+        checkForUpdates(silent: true)
+    }
+
+    /// Query public Releases. Silent = launch check (no “up to date” toast text clutter).
+    func checkForUpdates(silent: Bool = false) {
+        guard !isCheckingUpdate else { return }
+        isCheckingUpdate = true
+        if !silent {
+            updateCheckMessage = "Checking…"
+        }
+        Task {
+            let outcome = await UpdateChecker.check()
+            isCheckingUpdate = false
+            switch outcome {
+            case .upToDate(let current):
+                availableUpdate = nil
+                if !silent {
+                    updateCheckMessage = "You’re on \(current) — latest."
+                }
+            case .available(let info):
+                let dismissed = UserDefaults.standard.string(forKey: Self.dismissedUpdateKey)
+                if dismissed == info.version {
+                    availableUpdate = nil
+                    if !silent {
+                        updateCheckMessage = "\(info.version) available (dismissed)."
+                    }
+                } else {
+                    availableUpdate = info
+                    updateCheckMessage = "DevDock \(info.version) is available."
+                }
+            case .failed(let reason):
+                if !silent {
+                    updateCheckMessage = "Check failed: \(reason)"
+                }
+            }
+        }
+    }
+
+    func dismissAvailableUpdate() {
+        if let version = availableUpdate?.version {
+            UserDefaults.standard.set(version, forKey: Self.dismissedUpdateKey)
+        }
+        availableUpdate = nil
+        objectWillChange.send()
+    }
+
+    func openUpdateDownload() {
+        guard let update = availableUpdate else {
+            NSWorkspace.shared.open(UpdateChecker.releasesPageURL)
+            return
+        }
+        let url = update.downloadURL ?? update.releasePageURL ?? UpdateChecker.siteURL
+        NSWorkspace.shared.open(url)
+    }
+
+    func copyBrewUpgradeCommand() {
+        let pb = NSPasteboard.general
+        pb.clearContents()
+        pb.setString(UpdateChecker.brewUpgradeCommand, forType: .string)
+        updateCheckMessage = "Copied: \(UpdateChecker.brewUpgradeCommand)"
+    }
+
+    func updateAutomationSettings(
+        notifyOnReady: Bool? = nil,
+        startMorningOnLaunch: Bool? = nil,
+        idleAutoStopMinutes: Int? = nil
+    ) {
+        if let notifyOnReady {
+            settings.notifyOnReady = notifyOnReady
+            if notifyOnReady { AppNotifier.requestPermissionIfNeeded() }
+        }
+        if let startMorningOnLaunch {
+            settings.startMorningOnLaunch = startMorningOnLaunch
+        }
+        if let idleAutoStopMinutes {
+            settings.idleAutoStopMinutes = max(0, idleAutoStopMinutes)
+        }
+        persist()
+        objectWillChange.send()
+    }
+
+    func fixDependency(_ issue: DependencyIssue, for project: DevProject) {
+        showLogsFor = project.id
+        Task {
+            await processManager.runFixCommand(project, command: issue.command, title: issue.fixTitle)
         }
     }
 
@@ -252,12 +423,80 @@ final class DevDockStore: ObservableObject {
 
     func start(_ project: DevProject) {
         markOpened(project)
-        Task {
-            await processManager.startAsync(project)
-            if processManager.status(for: project.id) == .error {
-                showLogsFor = project.id
-            }
+        // Sync detection into the sidebar before launch (Expo vs stale React/3000).
+        if let idx = projects.firstIndex(where: { $0.id == project.id }) {
+            let framework = FrameworkDetector.detect(at: project.path)
+            let port = FrameworkDetector.detectPort(at: project.path, framework: framework)
+            let command = StartCommandResolver.resolve(at: project.path, framework: framework, port: port)
+            projects[idx].framework = framework
+            projects[idx].port = port
+            projects[idx].detectedStartCommand = command
+            persist()
         }
+        let live = projects.first(where: { $0.id == project.id }) ?? project
+        Task {
+            await processManager.startAsync(live)
+            presentFailureIfNeeded(for: live.id)
+        }
+    }
+
+    func restart(_ project: DevProject, clearCache: Bool = false) {
+        markOpened(project)
+        let live = projects.first(where: { $0.id == project.id }) ?? project
+        Task {
+            await processManager.restartAsync(live, clearCache: clearCache)
+            presentFailureIfNeeded(for: live.id)
+        }
+    }
+
+    func hotReload(_ project: DevProject) {
+        processManager.hotReload(project)
+        showLogsFor = project.id
+    }
+
+    func hotRestart(_ project: DevProject) {
+        processManager.hotRestart(project)
+        showLogsFor = project.id
+    }
+
+    func openDevice(_ project: DevProject, platform: String) {
+        processManager.openSimulator(project, platform: platform)
+        showLogsFor = project.id
+        // Device resolution is async — poll briefly for failure state.
+        Task {
+            try? await Task.sleep(nanoseconds: 400_000_000)
+            presentFailureIfNeeded(for: project.id)
+            try? await Task.sleep(nanoseconds: 1_200_000_000)
+            presentFailureIfNeeded(for: project.id)
+        }
+    }
+
+    func runOnFlutterDevice(_ project: DevProject, deviceID: String, label: String) {
+        markOpened(project)
+        showLogsFor = project.id
+        Task {
+            await processManager.runFlutterOnDeviceID(project, deviceID: deviceID, label: label)
+            presentFailureIfNeeded(for: project.id)
+        }
+    }
+
+    func runOnMetroDevice(_ project: DevProject, device: MobileDevices.Device) {
+        markOpened(project)
+        showLogsFor = project.id
+        Task {
+            await processManager.openMetroDevice(project, device: device)
+            presentFailureIfNeeded(for: project.id)
+        }
+    }
+
+    func listFlutterDevices(_ project: DevProject) {
+        processManager.listFlutterDevices(project)
+        showLogsFor = project.id
+    }
+
+    func sendRuntimeKey(_ project: DevProject, _ key: String) {
+        _ = processManager.sendInput(project, key)
+        showLogsFor = project.id
     }
 
     func stop(_ project: DevProject) {
@@ -287,6 +526,39 @@ final class DevDockStore: ObservableObject {
         objectWillChange.send()
     }
 
+    func addProjectCommand(_ project: DevProject, title: String, commandLine: String) {
+        guard let idx = projects.firstIndex(where: { $0.id == project.id }),
+              let cmd = CustomCommand(title: title, commandLine: commandLine) else { return }
+        projects[idx].customCommands.append(cmd)
+        persist()
+        objectWillChange.send()
+    }
+
+    func deleteProjectCommand(_ project: DevProject, commandID: UUID) {
+        guard let idx = projects.firstIndex(where: { $0.id == project.id }) else { return }
+        projects[idx].customCommands.removeAll { $0.id == commandID }
+        persist()
+        objectWillChange.send()
+    }
+
+    func addGlobalCommand(title: String, commandLine: String) {
+        guard let cmd = CustomCommand(title: title, commandLine: commandLine) else { return }
+        settings.globalCustomCommands.append(cmd)
+        persist()
+        objectWillChange.send()
+    }
+
+    func deleteGlobalCommand(_ commandID: UUID) {
+        settings.globalCustomCommands.removeAll { $0.id == commandID }
+        persist()
+        objectWillChange.send()
+    }
+
+    /// Global + project commands for the detail panel.
+    func allCommands(for project: DevProject) -> [CustomCommand] {
+        settings.globalCustomCommands + project.customCommands
+    }
+
     func startWorkspace(_ workspace: WorkspaceProfile) {
         guard canUseWorkspaces else {
             workspaceActivityMessage = "Workspaces require DevDock Pro"
@@ -304,6 +576,7 @@ final class DevDockStore: ObservableObject {
             let delayNs = UInt64(max(0, workspace.staggerMilliseconds)) * 1_000_000
             var started = 0
             var skipped = 0
+            var failed = 0
 
             for (index, project) in members.enumerated() {
                 let current = status(for: project)
@@ -315,12 +588,13 @@ final class DevDockStore: ObservableObject {
                     markOpened(project)
                     await processManager.startAsync(project)
                     if processManager.status(for: project.id) == .error {
-                        showLogsFor = project.id
+                        failed += 1
+                        presentFailureIfNeeded(for: project.id)
                     } else {
                         started += 1
-                        if workspace.openBrowsers, let port = project.port {
-                            // Give the server a brief moment before opening
-                            try? await Task.sleep(nanoseconds: 400_000_000)
+                        if workspace.openBrowsers,
+                           let port = processManager.effectivePort(for: project) {
+                            _ = await processManager.waitUntilReady(project.id, timeoutSeconds: 18)
                             ExternalLauncher.openBrowser(port: port)
                         }
                     }
@@ -331,10 +605,22 @@ final class DevDockStore: ObservableObject {
             }
 
             isLaunchingWorkspace = false
-            workspaceActivityMessage = "\(workspace.name): started \(started)"
-                + (skipped > 0 ? ", skipped \(skipped)" : "")
+            var summary = "\(workspace.name): started \(started)"
+            if skipped > 0 { summary += ", skipped \(skipped)" }
+            if failed > 0 { summary += ", failed \(failed)" }
+            workspaceActivityMessage = summary
             objectWillChange.send()
         }
+    }
+
+    /// Open log drawer when a start/device action lands in `.error`.
+    func presentFailureIfNeeded(for projectID: UUID) {
+        guard processManager.status(for: projectID) == .error else { return }
+        showLogsFor = projectID
+        if let project = projects.first(where: { $0.id == projectID }) {
+            selectedProjectID = project.id
+        }
+        objectWillChange.send()
     }
 
     func stopWorkspace(_ workspace: WorkspaceProfile) {
@@ -370,18 +656,34 @@ final class DevDockStore: ObservableObject {
         }
     }
 
-    func addWorkspace(name: String, projectIDs: [UUID], openBrowsers: Bool = false) {
+    func addWorkspace(
+        name: String,
+        projectIDs: [UUID],
+        openBrowsers: Bool = false,
+        isMorningRoutine: Bool = false
+    ) {
         guard canUseWorkspaces else {
             workspaceActivityMessage = "Workspaces require DevDock Pro"
             return
+        }
+        if isMorningRoutine {
+            for i in settings.workspaces.indices {
+                settings.workspaces[i].isMorningRoutine = false
+            }
         }
         settings.workspaces.append(
             WorkspaceProfile(
                 name: name.trimmingCharacters(in: .whitespacesAndNewlines),
                 projectIDs: projectIDs,
-                openBrowsers: openBrowsers
+                openBrowsers: openBrowsers,
+                isMorningRoutine: isMorningRoutine
             )
         )
+        // Morning routine first in the list for one-tap access.
+        settings.workspaces.sort { a, b in
+            if a.isMorningRoutine != b.isMorningRoutine { return a.isMorningRoutine }
+            return a.name.localizedCaseInsensitiveCompare(b.name) == .orderedAscending
+        }
         persist()
     }
 
@@ -403,10 +705,32 @@ final class DevDockStore: ObservableObject {
         WorkspaceSuggester.suggest(from: projects, existing: settings.workspaces)
     }
 
+    var morningRoutine: WorkspaceProfile? {
+        settings.workspaces.first(where: \.isMorningRoutine)
+    }
+
     func updateWorkspace(_ workspace: WorkspaceProfile) {
         guard let idx = settings.workspaces.firstIndex(where: { $0.id == workspace.id }) else { return }
-        settings.workspaces[idx] = workspace
+        var updated = workspace
+        if updated.isMorningRoutine {
+            for i in settings.workspaces.indices where settings.workspaces[i].id != updated.id {
+                settings.workspaces[i].isMorningRoutine = false
+            }
+        }
+        settings.workspaces[idx] = updated
+        settings.workspaces.sort { a, b in
+            if a.isMorningRoutine != b.isMorningRoutine { return a.isMorningRoutine }
+            return a.name.localizedCaseInsensitiveCompare(b.name) == .orderedAscending
+        }
         persist()
+    }
+
+    func startMorningRoutine() {
+        guard let routine = morningRoutine else {
+            workspaceActivityMessage = "No morning routine set — mark one in Workspaces"
+            return
+        }
+        startWorkspace(routine)
     }
 
     func deleteWorkspace(_ workspace: WorkspaceProfile) {
@@ -466,6 +790,7 @@ final class DevDockStore: ObservableObject {
                 p.id = old.id
                 p.lastOpenedAt = old.lastOpenedAt
                 p.customStartCommand = old.customStartCommand
+                p.customCommands = old.customCommands
                 p.isFavorite = old.isFavorite || favoriteSet.contains(old.id)
             } else {
                 p.isFavorite = favoriteSet.contains(p.id)
@@ -506,10 +831,11 @@ final class DevDockStore: ObservableObject {
     }
 
     private func startResourceTimer() {
-        // Lightweight UI tick for managed running indicators only — no shell work here.
-        resourceTimer = Timer.scheduledTimer(withTimeInterval: 5.0, repeats: true) { [weak self] _ in
+        // Refresh CPU/RAM for managed process trees (incl. Simulator Runner) every 3s.
+        resourceTimer = Timer.scheduledTimer(withTimeInterval: 3.0, repeats: true) { [weak self] _ in
             Task { @MainActor in
                 guard let self else { return }
+                self.processManager.refreshAllResourceHints()
                 let anyRunning = self.projects.contains {
                     self.processManager.status(for: $0.id) == .running
                 }
@@ -526,6 +852,49 @@ final class DevDockStore: ObservableObject {
         portPollTimer = Timer.scheduledTimer(withTimeInterval: 2.0, repeats: true) { [weak self] _ in
             Task { @MainActor in
                 await self?.refreshLivePorts()
+            }
+        }
+    }
+
+    private func startIdleTimer() {
+        idleTimer = Timer.scheduledTimer(withTimeInterval: 30.0, repeats: true) { [weak self] _ in
+            Task { @MainActor in
+                self?.enforceIdleAutoStop()
+            }
+        }
+    }
+
+    private func observeReadyNotifications() {
+        readyObserver = NotificationCenter.default.addObserver(
+            forName: .devDockProjectReady,
+            object: nil,
+            queue: .main
+        ) { [weak self] note in
+            Task { @MainActor in
+                guard let self, self.settings.notifyOnReady else { return }
+                guard let idString = note.userInfo?["projectID"] as? String,
+                      let id = UUID(uuidString: idString),
+                      let port = note.userInfo?["port"] as? Int,
+                      let project = self.projects.first(where: { $0.id == id }) else { return }
+                AppNotifier.ready(projectName: project.name, port: port)
+            }
+        }
+    }
+
+    private func enforceIdleAutoStop() {
+        let minutes = settings.idleAutoStopMinutes
+        guard minutes > 0 else { return }
+        let limit = TimeInterval(minutes * 60)
+        let now = Date()
+        for project in projects {
+            guard processManager.status(for: project.id) == .running else { continue }
+            guard let last = processManager.lastActivity(for: project.id) else { continue }
+            if now.timeIntervalSince(last) >= limit {
+                processManager.note(project.id, "Idle auto-stop after \(minutes) min")
+                stop(project)
+                if settings.notifyOnReady {
+                    AppNotifier.idleStopped(projectName: project.name, minutes: minutes)
+                }
             }
         }
     }
@@ -581,6 +950,18 @@ final class DevDockStore: ObservableObject {
             externallyLiveProjectIDs = result.0
             ambiguousBusyPorts = result.1
             objectWillChange.send()
+        }
+
+        // HTTP ready probes for managed + external stacks with a host port.
+        for project in projects {
+            let st = status(for: project)
+            let alive = st == .running || st == .external || st == .starting
+            let port = processManager.effectivePort(for: project) ?? project.port
+            if alive, let port {
+                processManager.ensureHealthProbe(for: project.id, port: port, alive: true)
+            } else {
+                processManager.ensureHealthProbe(for: project.id, port: nil, alive: false)
+            }
         }
     }
 }

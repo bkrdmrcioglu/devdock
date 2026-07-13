@@ -1,0 +1,6 @@
+{
+  "name": "fixture-react-native",
+  "private": true,
+  "scripts": { "start": "echo fixture" },
+  "dependencies": { "react-native": "*" }
+}

@@ -40,6 +40,10 @@ final class LicenseManager: ObservableObject {
             statusMessage = "Pro active"
             Task { await refreshValidation() }
         } else {
+            // Ensure Free even if an old Debug unlock left isPro=true without a key.
+            if isPro, storedKey == nil {
+                setPro(false)
+            }
             statusMessage = "Free plan · \(LicenseLimits.freeProjectCap) projects"
         }
     }

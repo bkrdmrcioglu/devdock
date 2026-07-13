@@ -1,0 +1,6 @@
+{
+  "name": "fixture-quasar",
+  "private": true,
+  "scripts": { "dev": "echo fixture" },
+  "dependencies": { "quasar": "*" }
+}

@@ -1,0 +1,6 @@
+{
+  "name": "fixture-expo",
+  "private": true,
+  "scripts": { "start": "echo fixture" },
+  "dependencies": { "expo": "*" }
+}

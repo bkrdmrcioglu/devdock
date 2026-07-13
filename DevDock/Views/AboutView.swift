@@ -3,6 +3,7 @@ import AppKit
 
 struct AboutView: View {
     @Environment(\.dismiss) private var dismiss
+    @State private var showWhatsNew = false
 
     var body: some View {
         VStack(spacing: 18) {
@@ -42,7 +43,9 @@ struct AboutView: View {
             .background(DevDockTheme.panel)
             .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
 
-            HStack {
+            HStack(spacing: 10) {
+                Button("What’s new") { showWhatsNew = true }
+                    .buttonStyle(GhostButtonStyle())
                 Button("Close") { dismiss() }
                     .buttonStyle(AccentButtonStyle())
             }
@@ -50,6 +53,9 @@ struct AboutView: View {
         .padding(28)
         .frame(width: 420)
         .background(DevDockTheme.ink)
+        .sheet(isPresented: $showWhatsNew) {
+            WhatsNewView()
+        }
     }
 
     private func aboutRow(_ title: String, _ subtitle: String) -> some View {

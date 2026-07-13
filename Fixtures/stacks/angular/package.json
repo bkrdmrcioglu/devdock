@@ -1,0 +1,6 @@
+{
+  "name": "fixture-angular",
+  "private": true,
+  "scripts": { "dev": "echo fixture" },
+  "dependencies": { "@angular/core": "*" }
+}

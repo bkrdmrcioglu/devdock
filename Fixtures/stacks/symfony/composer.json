@@ -1,0 +1,1 @@
+{ "name": "fixture/symfony", "require": { "symfony/framework-bundle": "*" } }

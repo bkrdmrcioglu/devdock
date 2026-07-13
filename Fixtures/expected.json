@@ -1,0 +1,150 @@
+{
+  "description": "Expected FrameworkDetector results for Fixtures/stacks",
+  "stacksRoot": "Fixtures/stacks",
+  "projects": {
+    "angular": {
+      "framework": "Angular",
+      "port": 3000
+    },
+    "astro": {
+      "framework": "Astro",
+      "port": 4321
+    },
+    "django": {
+      "framework": "Django",
+      "port": 8000
+    },
+    "dotnet": {
+      "framework": ".NET",
+      "port": 5000
+    },
+    "electron": {
+      "framework": "Electron",
+      "port": null
+    },
+    "ember": {
+      "framework": "Ember",
+      "port": 3000
+    },
+    "expo": {
+      "framework": "Expo",
+      "port": 8081
+    },
+    "express": {
+      "framework": "Express",
+      "port": 3000
+    },
+    "fastapi": {
+      "framework": "FastAPI",
+      "port": 8000
+    },
+    "fastify": {
+      "framework": "Fastify",
+      "port": 3000
+    },
+    "flask": {
+      "framework": "Flask",
+      "port": 8000
+    },
+    "flutter": {
+      "framework": "Flutter",
+      "port": 8080
+    },
+    "gatsby": {
+      "framework": "Gatsby",
+      "port": 3000
+    },
+    "go": {
+      "framework": "Go",
+      "port": 8080
+    },
+    "hono": {
+      "framework": "Hono",
+      "port": 3000
+    },
+    "ionic": {
+      "framework": "Ionic",
+      "port": 8081
+    },
+    "koa": {
+      "framework": "Koa",
+      "port": 3000
+    },
+    "laravel": {
+      "framework": "Laravel",
+      "port": 8000
+    },
+    "nestjs": {
+      "framework": "NestJS",
+      "port": 3000
+    },
+    "nextjs": {
+      "framework": "Next.js",
+      "port": 3000
+    },
+    "nuxt": {
+      "framework": "Nuxt",
+      "port": 3000
+    },
+    "phoenix": {
+      "framework": "Phoenix",
+      "port": 4000
+    },
+    "quasar": {
+      "framework": "Quasar",
+      "port": 5173
+    },
+    "rails": {
+      "framework": "Rails",
+      "port": 3000
+    },
+    "react": {
+      "framework": "React",
+      "port": 3000
+    },
+    "react-native": {
+      "framework": "React Native",
+      "port": 8081
+    },
+    "remix": {
+      "framework": "Remix",
+      "port": 3000
+    },
+    "rust": {
+      "framework": "Rust",
+      "port": 8080
+    },
+    "solid": {
+      "framework": "Solid",
+      "port": 5173
+    },
+    "spring": {
+      "framework": "Spring Boot",
+      "port": 8080
+    },
+    "svelte": {
+      "framework": "Svelte",
+      "port": 5173
+    },
+    "sveltekit": {
+      "framework": "SvelteKit",
+      "port": 5173
+    },
+    "symfony": {
+      "framework": "Symfony",
+      "port": 8000
+    },
+    "tauri": {
+      "framework": "Tauri",
+      "port": null
+    },
+    "vite": {
+      "framework": "Vite",
+      "port": 5173
+    },
+    "vue": {
+      "framework": "Vue",
+      "port": 5173
+    }
+  }
+}

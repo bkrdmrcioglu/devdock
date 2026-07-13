@@ -26,6 +26,11 @@ struct DevDockApp: App {
                 }
             }
             CommandMenu("Projects") {
+                Button("Command Palette") {
+                    store.showCommandPalette = true
+                }
+                .keyboardShortcut("k", modifiers: .command)
+
                 Button("Rescan Folders") {
                     store.rescan()
                 }
@@ -42,6 +47,13 @@ struct DevDockApp: App {
             }
 
             CommandMenu("Workspaces") {
+                if store.morningRoutine != nil {
+                    Button("Start Morning Routine") {
+                        store.startMorningRoutine()
+                    }
+                    .keyboardShortcut("m", modifiers: [.command, .shift])
+                    Divider()
+                }
                 ForEach(store.settings.workspaces) { workspace in
                     Button("Start \(workspace.name)") {
                         store.startWorkspace(workspace)

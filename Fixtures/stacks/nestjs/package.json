@@ -1,0 +1,6 @@
+{
+  "name": "fixture-nestjs",
+  "private": true,
+  "scripts": { "dev": "echo fixture" },
+  "dependencies": { "@nestjs/core": "*" }
+}
