@@ -54,10 +54,20 @@ App zip (not source) is published on the public site repo Releases:
 
 https://github.com/bkrdmrcioglu/devdock-site/releases/download/v0.2.0/DevDock-0.2.0.zip
 
+### Homebrew
+
+```bash
+brew install --cask bkrdmrcioglu/devdock/devdock
+```
+
+Tap: https://github.com/bkrdmrcioglu/homebrew-devdock
+
 After `./scripts/release.sh`, upload the new zip:
 
 ```bash
 gh release create vX.Y.Z dist/DevDock-X.Y.Z.zip --repo bkrdmrcioglu/devdock-site --title "DevDock X.Y.Z"
+shasum -a 256 dist/DevDock-X.Y.Z.zip
+# bump version + sha256 in homebrew-devdock/Casks/devdock.rb and push
 ```
 
 Then update download links in `docs/index.html` and sync the site.

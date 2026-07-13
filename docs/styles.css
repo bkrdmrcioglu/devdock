@@ -389,6 +389,36 @@ pre {
 
 .plan li { margin: 6px 0; }
 
+.install-block {
+  margin: 0 0 22px;
+  max-width: 40rem;
+}
+
+.install-label {
+  margin: 0 0 8px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--mist);
+}
+
+.install-cmd {
+  margin: 0;
+  padding: 14px 16px;
+  border-radius: 10px;
+  background: #0b0e11;
+  border: 1px solid var(--line);
+  color: var(--accent);
+  font-size: 0.88rem;
+  overflow-x: auto;
+}
+
+.install-cmd code {
+  font-family: var(--mono);
+  white-space: nowrap;
+}
+
 footer {
   max-width: 1080px;
   margin: 0 auto;

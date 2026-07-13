@@ -4,10 +4,18 @@ macOS developer workspace manager — scan local projects, start/stop stacks, wo
 
 **Version:** 0.2.0
 
+## Install (users)
+
+```bash
+brew install --cask bkrdmrcioglu/devdock/devdock
+```
+
+Or download the zip from the [marketing site](https://bkrdmrcioglu.github.io/devdock-site/).
+
 ## Requirements
 
 - macOS 14+
-- Xcode 15+
+- Xcode 15+ (to build from source)
 - [XcodeGen](https://github.com/yonaskolb/XcodeGen) (`brew install xcodegen`)
 
 ## Build & run (Debug)
