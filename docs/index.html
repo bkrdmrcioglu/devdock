@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>DevDock — All your local stacks. One workspace.</title>
+  <meta name="description" content="macOS app that finds your local projects and starts API, web, and admin stacks in one click. No Docker. No terminal circus." />
+  <meta property="og:title" content="DevDock" />
+  <meta property="og:description" content="All your local stacks. One workspace." />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="assets/og.png" />
+  <meta name="twitter:card" content="summary" />
+  <link rel="icon" type="image/png" href="assets/favicon.png" />
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="atmosphere" aria-hidden="true"></div>
+
+  <header class="top">
+    <a class="brand" href="./">
+      <img src="assets/mark.png" width="28" height="28" alt="" />
+      DevDock
+    </a>
+    <nav>
+      <a href="#features">Features</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#download" class="nav-cta">Download</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero">
+      <h1 class="reveal">DevDock</h1>
+      <p class="lede reveal delay-1">All your local stacks. One workspace.</p>
+      <p class="support reveal delay-2">
+        Scan projects. Start API + web + admin together. Watch ports from the menu bar.
+      </p>
+      <div class="cta-row reveal delay-3">
+        <a class="btn primary" href="#download">Download for Mac</a>
+        <a class="btn ghost" href="https://devdock.lemonsqueezy.com" rel="noopener">Buy Pro — $29</a>
+      </div>
+      <p class="fine reveal delay-3">macOS 14+ · Direct download · Free for 3 projects</p>
+    </section>
+
+    <section class="shot reveal delay-4" aria-label="Product preview">
+      <div class="shot-frame">
+        <div class="shot-bar">
+          <span></span><span></span><span></span>
+          <p>DevDock — local workspace manager</p>
+        </div>
+        <div class="shot-body">
+          <aside>
+            <p class="aside-label">Projects</p>
+            <div class="row on"><i></i> noreva/backend · Nest · :3000</div>
+            <div class="row"><i></i> noreva/mobile · React · :8081</div>
+            <div class="row on ext"><i></i> nextjs-etic · Next · :3001</div>
+            <div class="row"><i></i> clean · Go · :8080</div>
+          </aside>
+          <div class="detail">
+            <p class="status"><i class="dot"></i> Running</p>
+            <h2>noreva/backend</h2>
+            <p class="meta">NestJS · localhost:3000</p>
+            <div class="actions">
+              <span class="chip accent">Stop</span>
+              <span class="chip">Open</span>
+              <span class="chip">Logs</span>
+            </div>
+            <pre>npm run start:dev</pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="features" class="features">
+      <h2>Built for the morning ritual</h2>
+      <p class="section-support">Replace five terminals, one Docker Desktop click, and a sticky note of ports.</p>
+      <dl class="feature-list">
+        <div>
+          <dt>Scan &amp; detect</dt>
+          <dd>Finds Next.js, Nest, Laravel, Go, and more — including monorepos like <code>hqtv-app/web</code>.</dd>
+        </div>
+        <div>
+          <dt>Start / Stop / Logs</dt>
+          <dd>Runs your real scripts with a proper GUI PATH. Stops process trees. Opens logs when something fails.</dd>
+        </div>
+        <div>
+          <dt>Workspaces</dt>
+          <dd>One click for API + frontend + admin. Staggered starts, optional browser open, menu bar control.</dd>
+        </div>
+        <div>
+          <dt>External ports</dt>
+          <dd>Already running from Terminal? DevDock matches the process cwd — not every project on :3000.</dd>
+        </div>
+      </dl>
+    </section>
+
+    <section id="pricing" class="pricing">
+      <h2>Simple pricing</h2>
+      <p class="section-support">Pay once. Own the workflow.</p>
+      <div class="plans">
+        <article class="plan">
+          <h3>Free</h3>
+          <p class="price">$0</p>
+          <ul>
+            <li>Up to 3 projects</li>
+            <li>Start / Stop / Open</li>
+            <li>Basic scan</li>
+          </ul>
+          <a class="btn ghost" href="#download">Download</a>
+        </article>
+        <article class="plan featured">
+          <h3>Pro</h3>
+          <p class="price">$29 <span>one-time</span></p>
+          <ul>
+            <li>Unlimited projects</li>
+            <li>Workspaces</li>
+            <li>Menu bar controls</li>
+            <li>External port awareness</li>
+            <li>Auto workspace suggestions</li>
+          </ul>
+          <a class="btn primary" href="https://devdock.lemonsqueezy.com" rel="noopener">Buy Pro</a>
+        </article>
+      </div>
+    </section>
+
+    <section id="download" class="download-block">
+      <h2>Download</h2>
+      <p class="section-support">
+        Apple Silicon / Intel. First open may need Right-click → Open until notarized builds ship.
+        Free build is sent by email for now (source stays private).
+      </p>
+      <div class="cta-row">
+        <a class="btn primary" href="mailto:bkrdmrcioğlu@gmail.com?subject=DevDock%20download">Request free download</a>
+        <a class="btn ghost" href="https://devdock.lemonsqueezy.com" rel="noopener">Buy Pro</a>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p><strong>DevDock</strong> · All your local stacks. One workspace.</p>
+    <p>© <span id="y"></span> DevDock. Sold as a digital Mac app. Payments via Lemon Squeezy.</p>
+  </footer>
+
+  <script>
+    document.getElementById("y").textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>
