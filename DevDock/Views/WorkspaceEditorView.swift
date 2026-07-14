@@ -188,7 +188,7 @@ struct WorkspaceEditorView: View {
                 .font(.system(size: 12))
                 .foregroundStyle(DevDockTheme.mist)
                 .fixedSize(horizontal: false, vertical: true)
-            Button("Buy Pro — $29") {
+            Button("Buy Pro — \(LicenseLimits.proPriceLabel)") {
                 NSWorkspace.shared.open(LicenseLimits.buyURL)
             }
             .buttonStyle(AccentButtonStyle())

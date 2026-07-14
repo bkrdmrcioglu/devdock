@@ -3,7 +3,7 @@ import Foundation
 /// Versioned changelog. Newest release first — bump `contentID` when adding a release.
 enum WhatsNew {
     /// Change when returning users should see the sheet again (usually = latest version).
-    static let contentID = "0.2.4-versioned-changelog"
+    static let contentID = "0.2.5-suite"
 
     private static let seenKey = "devdock.whatsNew.seenID"
 
@@ -30,6 +30,13 @@ enum WhatsNew {
 
     /// Full history, newest → oldest. Add a new `Release` block at the top each ship.
     static let releases: [Release] = [
+        Release(version: "0.2.5", items: [
+            Item(
+                title: "Suite chrome trail",
+                detail: "Upgrade · What’s New · Settings icons match Mail / SQL / Check.",
+                systemImage: "sparkles"
+            ),
+        ]),
         Release(version: "0.2.4", items: [
             Item(
                 title: "Update check",

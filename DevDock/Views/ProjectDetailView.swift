@@ -412,6 +412,9 @@ struct ProjectDetailView: View {
                 Button("Open in Editor", systemImage: "chevron.left.forwardslash.chevron.right") {
                     ExternalLauncher.openEditor(liveProject.path)
                 }
+                Button("Open in DevCheck", systemImage: "checkmark.shield") {
+                    ExternalLauncher.openDevCheck(liveProject.path)
+                }
                 Button("Open Folder", systemImage: "folder") {
                     ExternalLauncher.openFolder(liveProject.path)
                 }

@@ -187,7 +187,7 @@ struct SettingsView: View {
                  ? (license.statusMessage.contains("Debug")
                     ? "Debug build · all projects + workspaces unlocked."
                     : "Unlimited projects + workspaces unlocked.")
-                 : "Free includes \(LicenseLimits.freeProjectCap) projects. Workspaces need Pro.")
+                 : "Free includes \(LicenseLimits.freeProjectCap) projects. Pro (\(LicenseLimits.proPriceLabel) one-time) unlocks workspaces & unlimited projects.")
                 .font(.system(size: 12))
                 .foregroundStyle(DevDockTheme.mist)
 
@@ -234,7 +234,7 @@ struct SettingsView: View {
                     .buttonStyle(AccentButtonStyle())
                     .disabled(license.isBusy || license.draftKey.trimmingCharacters(in: .whitespaces).isEmpty)
 
-                    Button("Buy Pro — $29") {
+                    Button("Buy Pro — \(LicenseLimits.proPriceLabel)") {
                         NSWorkspace.shared.open(LicenseLimits.buyURL)
                     }
                     .buttonStyle(GhostButtonStyle())

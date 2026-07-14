@@ -59,6 +59,15 @@ enum ExternalLauncher {
         openFolder(path)
     }
 
+    static func openDevCheck(_ path: String) {
+        var comps = URLComponents()
+        comps.scheme = "devcheck"
+        comps.host = "open"
+        comps.queryItems = [URLQueryItem(name: "path", value: path)]
+        guard let url = comps.url else { return }
+        open(url)
+    }
+
     static func openEnvFile(_ path: String) {
         let env = (path as NSString).appendingPathComponent(".env")
         if FileManager.default.fileExists(atPath: env) {

@@ -2,6 +2,7 @@ import Foundation
 
 enum LicenseLimits {
     static let freeProjectCap = 3
+    static let proPriceLabel = "$29"
     static let buyURL = URL(string: "https://devdock.lemonsqueezy.com")!
 }
 

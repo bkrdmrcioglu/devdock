@@ -8,6 +8,7 @@ SCHEME="DevDock"
 CONFIG="Release"
 IDENTITY="${CODE_SIGN_IDENTITY:-Developer ID Application: Bekir Demircioglu (HLZQLSTBB8)}"
 TEAM="${DEVELOPMENT_TEAM:-HLZQLSTBB8}"
+NOTARY_PROFILE="${NOTARY_PROFILE:-NotaryProfile}"
 
 cd "$ROOT"
 
@@ -55,15 +56,30 @@ BUILD="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' "$DIST/$APP_NAME.ap
 ZIP="$DIST/${APP_NAME}-${VERSION}.zip"
 rm -f "$ZIP"
 ditto -c -k --sequesterRsrc --keepParent "$DIST/$APP_NAME.app" "$ZIP"
+SHA="$(shasum -a 256 "$ZIP" | awk '{print $1}')"
+echo "$SHA" > "$ZIP.sha256"
 
 echo ""
-echo "==> Release ready"
+echo "==> Package ready"
 echo "    App: $DIST/$APP_NAME.app"
 echo "    Zip: $ZIP"
 echo "    Version: $VERSION ($BUILD)"
-echo "    SHA256: $(shasum -a 256 "$ZIP" | awk '{print $1}')"
+echo "    SHA256: $SHA"
+
+if xcrun notarytool history --keychain-profile "$NOTARY_PROFILE" >/dev/null 2>&1; then
+  echo "==> Notarizing with profile $NOTARY_PROFILE"
+  xcrun notarytool submit "$ZIP" --keychain-profile "$NOTARY_PROFILE" --wait
+  xcrun stapler staple "$DIST/$APP_NAME.app"
+  rm -f "$ZIP"
+  ditto -c -k --sequesterRsrc --keepParent "$DIST/$APP_NAME.app" "$ZIP"
+  SHA="$(shasum -a 256 "$ZIP" | awk '{print $1}')"
+  echo "$SHA" > "$ZIP.sha256"
+  echo "==> Stapled. SHA256: $SHA"
+else
+  echo "==> Skipping notarization (no keychain profile \"$NOTARY_PROFILE\")"
+fi
+
 echo ""
-echo "Open with: open \"$DIST/$APP_NAME.app\""
-echo "Notarize next (needs notarytool profile):"
-echo "  xcrun notarytool submit \"$ZIP\" --keychain-profile \"NotaryProfile\" --wait"
-echo "  xcrun stapler staple \"$DIST/$APP_NAME.app\""
+echo "GitHub:"
+echo "  gh release create v${VERSION} \"$ZIP\" --repo bkrdmrcioglu/devdock-site --title \"DevDock ${VERSION}\""
+echo "Homebrew: set sha256 $SHA in homebrew-devdock Casks/devdock.rb"

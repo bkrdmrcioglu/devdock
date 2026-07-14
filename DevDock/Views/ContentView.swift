@@ -161,34 +161,18 @@ struct ContentView: View {
                 }
                 Spacer(minLength: 8)
 
-                Button {
-                    showWhatsNew = true
-                } label: {
-                    HStack(spacing: 5) {
-                        Image(systemName: "sparkles")
-                            .font(.system(size: 11, weight: .bold))
-                        Text("What’s new")
-                            .font(.system(size: 11, weight: .semibold))
-                        if showsWhatsNewBadge {
-                            Text("NEW")
-                                .font(.system(size: 9, weight: .bold))
-                                .foregroundStyle(DevDockTheme.ink)
-                                .padding(.horizontal, 5)
-                                .padding(.vertical, 2)
-                                .background(DevDockTheme.accent)
-                                .clipShape(RoundedRectangle(cornerRadius: 3, style: .continuous))
-                        }
-                    }
-                    .foregroundStyle(showsWhatsNewBadge ? DevDockTheme.accent : DevDockTheme.mist)
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 5)
-                    .background(
-                        (showsWhatsNewBadge ? DevDockTheme.accent : DevDockTheme.mist).opacity(0.12)
-                    )
-                    .clipShape(RoundedRectangle(cornerRadius: 7, style: .continuous))
-                }
-                .buttonStyle(.plain)
-                .help("Release notes & keyboard shortcuts")
+                SuiteChromeTrail(
+                    isPro: store.isPro,
+                    showsWhatsNewBadge: showsWhatsNewBadge,
+                    accent: DevDockTheme.accent,
+                    warn: DevDockTheme.warn,
+                    mist: DevDockTheme.mist,
+                    ink: DevDockTheme.ink,
+                    elevated: DevDockTheme.panelElevated,
+                    onUpgrade: { showSettings = true },
+                    onWhatsNew: { showWhatsNew = true },
+                    onSettings: { showSettings = true }
+                )
             }
 
             HStack(spacing: 8) {
@@ -483,18 +467,6 @@ struct ContentView: View {
             Text("\(store.filteredProjects.count)/\(store.accessibleProjects.count)")
                 .font(.system(size: 11))
                 .foregroundStyle(DevDockTheme.mist)
-            if !store.isPro {
-                Text("Free")
-                    .font(.system(size: 10, weight: .bold))
-                    .foregroundStyle(DevDockTheme.warn)
-            }
-
-            Button {
-                showSettings = true
-            } label: {
-                Image(systemName: "gearshape")
-            }
-            .buttonStyle(.plain)
         }
         .foregroundStyle(DevDockTheme.mist)
         .padding(.horizontal, 14)
