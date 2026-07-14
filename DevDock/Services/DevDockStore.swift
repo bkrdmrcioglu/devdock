@@ -44,6 +44,7 @@ final class DevDockStore: ObservableObject {
     private var didLaunchMorning = false
     private var isPollingPorts = false
     private var didAutoCheckUpdates = false
+    private var cancellables = Set<AnyCancellable>()
 
     private static let dismissedUpdateKey = "devdock.update.dismissedVersion"
 
@@ -61,6 +62,13 @@ final class DevDockStore: ObservableObject {
         if settings.notifyOnReady {
             AppNotifier.requestPermissionIfNeeded()
         }
+        // Forward license changes so chrome / free-cap UI refresh without reopening Settings.
+        licenseManager.objectWillChange
+            .receive(on: RunLoop.main)
+            .sink { [weak self] _ in
+                self?.objectWillChange.send()
+            }
+            .store(in: &cancellables)
     }
 
     /// Re-detect framework/port/start command for cached projects (fixes stale React/3000 on Expo apps).

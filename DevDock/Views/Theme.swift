@@ -1,4 +1,5 @@
 import SwiftUI
+import AppKit
 
 enum DevDockTheme {
     static let ink = Color(red: 0.07, green: 0.09, blue: 0.11)
@@ -17,6 +18,31 @@ enum DevDockTheme {
     static let titleFont = Font.system(size: 15, weight: .semibold, design: .rounded)
     static let bodyFont = Font.system(size: 13, weight: .regular, design: .default)
     static let mono = Font.system(size: 12, design: .monospaced)
+}
+
+
+struct BrandMark: View {
+    var size: CGFloat = 28
+    var cornerRadius: CGFloat = 7
+
+    var body: some View {
+        Image(nsImage: Self.resolvedImage)
+            .resizable()
+            .interpolation(.high)
+            .frame(width: size, height: size)
+            .clipShape(RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
+            .overlay(
+                RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                    .stroke(DevDockTheme.line, lineWidth: 1)
+            )
+            .accessibilityHidden(true)
+    }
+
+    static var resolvedImage: NSImage {
+        NSImage(named: "Logo")
+            ?? NSImage(named: NSImage.applicationIconName)
+            ?? NSApplication.shared.applicationIconImage
+    }
 }
 
 struct StatusDot: View {

@@ -17,7 +17,7 @@ Customer → Buy Pro on Lemon (browser)
 2. Variant → enable **License keys**
 3. Confirmation email includes the key (default)
 4. Copy checkout / store URL → put in app as `LicenseLimits.buyURL`  
-   (currently `https://devdock.lemonsqueezy.com`)
+   (currently `https://devsuites.lemonsqueezy.com`)
 5. Website field for verification: your GitHub Pages landing
 
 ## App side (already implemented)

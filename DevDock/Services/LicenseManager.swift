@@ -3,7 +3,8 @@ import Foundation
 enum LicenseLimits {
     static let freeProjectCap = 3
     static let proPriceLabel = "$29"
-    static let buyURL = URL(string: "https://devdock.lemonsqueezy.com")!
+    static let buyURL = URL(string: "https://devsuites.dev/api/buy/devdock")!
+    static let licensesPortalURL = URL(string: "https://devsuites.dev/licenses")!
 }
 
 @MainActor
@@ -205,8 +206,25 @@ enum LicenseAPI {
         )
     }
 
-    private static func post<T: Decodable>(path: String, fields: [String: String], as: T.Type) async throws -> T {
-        var request = URLRequest(url: URL(string: "https://api.lemonsqueezy.com\(path)")!)
+    private static func post<T: Decodable>(path: String, fields: [String: String], as type: T.Type) async throws -> T {
+        do {
+            return try await postTo(
+                url: URL(string: "https://api.lemonsqueezy.com\(path)")!,
+                fields: fields,
+                as: type
+            )
+        } catch {
+            // Admin-issued DS-… keys (and any key missing on Lemon) resolve via DevSuites.
+            return try await postTo(
+                url: URL(string: "https://devsuites.dev/api/license\(path.replacingOccurrences(of: "/v1/licenses", with: ""))")!,
+                fields: fields,
+                as: type
+            )
+        }
+    }
+
+    private static func postTo<T: Decodable>(url: URL, fields: [String: String], as: T.Type) async throws -> T {
+        var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Accept")
         request.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")

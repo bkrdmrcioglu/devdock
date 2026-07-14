@@ -214,6 +214,10 @@ struct SettingsView: View {
                     }
                     .buttonStyle(GhostButtonStyle())
                     .disabled(license.isBusy)
+                    Button("My licenses") {
+                        NSWorkspace.shared.open(LicenseLimits.licensesPortalURL)
+                    }
+                    .buttonStyle(GhostButtonStyle())
                     Button("Buy another seat") {
                         NSWorkspace.shared.open(LicenseLimits.buyURL)
                     }
@@ -227,6 +231,10 @@ struct SettingsView: View {
                     .background(DevDockTheme.panelElevated)
                     .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
 
+                Text("Buy at DevSuites checkout, then paste the key — or look it up under My licenses.")
+                    .font(.system(size: 11))
+                    .foregroundStyle(DevDockTheme.mist)
+
                 HStack {
                     Button(license.isBusy ? "Working…" : "Activate Pro") {
                         Task { await license.activate() }
@@ -236,6 +244,11 @@ struct SettingsView: View {
 
                     Button("Buy Pro — \(LicenseLimits.proPriceLabel)") {
                         NSWorkspace.shared.open(LicenseLimits.buyURL)
+                    }
+                    .buttonStyle(GhostButtonStyle())
+
+                    Button("My licenses") {
+                        NSWorkspace.shared.open(LicenseLimits.licensesPortalURL)
                     }
                     .buttonStyle(GhostButtonStyle())
                 }

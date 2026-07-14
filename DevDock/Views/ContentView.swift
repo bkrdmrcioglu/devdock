@@ -1,4 +1,5 @@
 import SwiftUI
+import AppKit
 
 struct ContentView: View {
     @EnvironmentObject private var store: DevDockStore
@@ -150,15 +151,22 @@ struct ContentView: View {
 
     private var header: some View {
         VStack(alignment: .leading, spacing: 10) {
-            HStack(alignment: .center, spacing: 8) {
+            HStack(alignment: .center, spacing: 10) {
+                BrandMark(size: 36, cornerRadius: 9)
                 VStack(alignment: .leading, spacing: 2) {
                     Text("DevDock")
                         .font(DevDockTheme.brandFont)
                         .foregroundStyle(DevDockTheme.chalk)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.7)
                     Text("All your local stacks")
                         .font(.system(size: 11, weight: .medium))
                         .foregroundStyle(DevDockTheme.mist)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.85)
                 }
+                .layoutPriority(1)
+
                 Spacer(minLength: 8)
 
                 SuiteChromeTrail(
@@ -169,10 +177,11 @@ struct ContentView: View {
                     mist: DevDockTheme.mist,
                     ink: DevDockTheme.ink,
                     elevated: DevDockTheme.panelElevated,
-                    onUpgrade: { showSettings = true },
+                    onUpgrade: { NSWorkspace.shared.open(LicenseLimits.buyURL) },
                     onWhatsNew: { showWhatsNew = true },
                     onSettings: { showSettings = true }
                 )
+                .layoutPriority(2)
             }
 
             HStack(spacing: 8) {

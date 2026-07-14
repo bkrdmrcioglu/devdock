@@ -23,6 +23,7 @@ struct SuiteChromeTrail: View {
                     .font(.system(size: 11, weight: .medium))
                     .foregroundStyle(mist.opacity(0.85))
                     .lineLimit(1)
+                    .fixedSize(horizontal: true, vertical: false)
                     .padding(.horizontal, 10)
                     .padding(.vertical, 6)
                     .background(ink.opacity(0.35))
@@ -33,6 +34,8 @@ struct SuiteChromeTrail: View {
                 Text("Pro")
                     .font(.system(size: 11, weight: .bold, design: .rounded))
                     .foregroundStyle(accent)
+                    .lineLimit(1)
+                    .fixedSize(horizontal: true, vertical: false)
                     .padding(.horizontal, 10)
                     .padding(.vertical, 6)
                     .background(accent.opacity(0.14))
@@ -44,6 +47,7 @@ struct SuiteChromeTrail: View {
                             .font(.system(size: 10, weight: .bold))
                         Text("Upgrade")
                             .font(.system(size: 11, weight: .bold, design: .rounded))
+                            .lineLimit(1)
                     }
                     .foregroundStyle(warn)
                     .padding(.horizontal, 10)
@@ -54,6 +58,8 @@ struct SuiteChromeTrail: View {
                     .contentShape(Capsule())
                 }
                 .buttonStyle(.plain)
+                .fixedSize()
+                .layoutPriority(2)
                 .help("Unlock Pro in Settings")
             }
 
@@ -76,6 +82,7 @@ struct SuiteChromeTrail: View {
                 .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
+            .fixedSize()
             .help("What’s New")
 
             if showSettingsButton {
@@ -89,6 +96,7 @@ struct SuiteChromeTrail: View {
                         .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
+                .fixedSize()
                 .help("Settings & license")
             }
         }

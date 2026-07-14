@@ -25,9 +25,12 @@ struct OnboardingView: View {
                 Spacer(minLength: 8)
 
                 VStack(alignment: .leading, spacing: 6) {
-                    Text("DevDock")
-                        .font(.system(size: 42, weight: .bold, design: .rounded))
-                        .foregroundStyle(DevDockTheme.chalk)
+                    HStack(spacing: 12) {
+                        BrandMark(size: 48, cornerRadius: 12)
+                        Text("DevDock")
+                            .font(.system(size: 42, weight: .bold, design: .rounded))
+                            .foregroundStyle(DevDockTheme.chalk)
+                    }
                     Text(stepTitle)
                         .font(.system(size: 17, weight: .semibold))
                         .foregroundStyle(DevDockTheme.chalk)
