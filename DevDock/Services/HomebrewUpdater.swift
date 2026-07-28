@@ -55,6 +55,10 @@ enum HomebrewUpdater {
             )
         }
 
+        // Cask now lives in the main devdock repo (not a homebrew-prefixed tap repo), so an
+        // explicit URL is required — the short "user/repo" form only auto-resolves to
+        // "homebrew-<repo>". Re-tapping an already-tapped identical remote is a no-op.
+        _ = await runBrew(brew, args: ["tap", "bkrdmrcioglu/devdock", "https://github.com/bkrdmrcioglu/devdock"])
         let update = await runBrew(brew, args: ["update"])
         let upgrade = await runBrew(brew, args: ["upgrade", "--cask", "bkrdmrcioglu/devdock/devdock"])
         var log = [update.log, upgrade.log].filter { !$0.isEmpty }.joined(separator: "\n---\n")

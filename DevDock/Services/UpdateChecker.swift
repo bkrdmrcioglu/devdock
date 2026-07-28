@@ -1,13 +1,13 @@
 import Foundation
 
-/// Checks public GitHub Releases on `devdock-site` for a newer DevDock zip.
+/// Checks public GitHub Releases on `devdock` for a newer DevDock zip.
 enum UpdateChecker {
     static let brewUpgradeCommand = "brew upgrade --cask bkrdmrcioglu/devdock/devdock"
-    static let siteURL = URL(string: "https://bkrdmrcioglu.github.io/devdock-site/")!
-    static let releasesPageURL = URL(string: "https://github.com/bkrdmrcioglu/devdock-site/releases")!
+    static let siteURL = URL(string: "https://github.com/bkrdmrcioglu/devdock")!
+    static let releasesPageURL = URL(string: "https://github.com/bkrdmrcioglu/devdock/releases")!
 
     private static let apiURL = URL(
-        string: "https://api.github.com/repos/bkrdmrcioglu/devdock-site/releases/latest"
+        string: "https://api.github.com/repos/bkrdmrcioglu/devdock/releases/latest"
     )!
 
     struct ReleaseInfo: Equatable {

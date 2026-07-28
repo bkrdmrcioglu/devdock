@@ -7,10 +7,11 @@ macOS developer workspace manager — scan local projects, start/stop stacks, mo
 ## Install (users)
 
 ```bash
-brew install --cask bkrdmrcioglu/devdock/devdock
+brew tap bkrdmrcioglu/devdock https://github.com/bkrdmrcioglu/devdock
+brew install --cask devdock
 ```
 
-Or download the zip from the [marketing site](https://bkrdmrcioglu.github.io/devdock-site/).
+Or download the zip from [Releases](https://github.com/bkrdmrcioglu/devdock/releases).
 
 ## Requirements
 

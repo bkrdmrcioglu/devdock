@@ -81,5 +81,5 @@ fi
 
 echo ""
 echo "GitHub:"
-echo "  gh release create v${VERSION} \"$ZIP\" --repo bkrdmrcioglu/devdock-site --title \"DevDock ${VERSION}\""
-echo "Homebrew: set sha256 $SHA in homebrew-devdock Casks/devdock.rb"
+echo "  gh release create v${VERSION} \"$ZIP\" --repo bkrdmrcioglu/devdock --title \"DevDock ${VERSION}\""
+echo "Homebrew: set version/sha256 $SHA in Casks/devdock.rb (this repo)"
