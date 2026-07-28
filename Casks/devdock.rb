@@ -1,8 +1,8 @@
 cask "devdock" do
-  version "0.3.0"
-  sha256 "135872f10bd3dc43c8df58ca670add676eff1ff085b16cc3c93130dcec32d6b7"
+  version "1.0.0"
+  sha256 "PLACEHOLDER"
 
-  url "https://github.com/bkrdmrcioglu/devdock/releases/download/v0.3.0/DevDock-0.3.0.zip"
+  url "https://github.com/bkrdmrcioglu/devdock/releases/download/v1.0.0/DevDock-1.0.0.zip"
   name "DevDock"
   desc "macOS developer workspace manager — scan, start/stop, and organize local dev stacks"
   homepage "https://github.com/bkrdmrcioglu/devdock"

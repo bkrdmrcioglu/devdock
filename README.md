@@ -2,7 +2,7 @@
 
 macOS developer workspace manager — scan local projects, start/stop stacks, mobile device targets, workspaces, menu bar control.
 
-**Version:** 0.3.0
+**Version:** 1.0.0
 
 ## Install (users)
 
