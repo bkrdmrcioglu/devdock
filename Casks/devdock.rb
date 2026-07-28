@@ -1,6 +1,6 @@
 cask "devdock" do
   version "1.0.0"
-  sha256 "PLACEHOLDER"
+  sha256 "a90fa4a9efe69d41aec0e2f471b47332cdfb3f3435664c490673fb4cb8bfce4e"
 
   url "https://github.com/bkrdmrcioglu/devdock/releases/download/v1.0.0/DevDock-1.0.0.zip"
   name "DevDock"
