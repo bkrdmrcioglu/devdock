@@ -129,6 +129,7 @@ DevDock to browse them in the UI.
 
 Issues and pull requests are welcome — bug reports, new framework detection, or
 feature ideas. Nothing is gated behind a paid tier, so feel free to dig in.
+See [CONTRIBUTING.md](CONTRIBUTING.md) for setup and where framework detection lives.
 
 ## Support
 

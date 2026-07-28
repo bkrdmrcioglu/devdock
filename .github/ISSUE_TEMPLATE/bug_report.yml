@@ -1,0 +1,45 @@
+name: Bug report
+description: Something in DevDock isn't working right
+labels: ["bug"]
+body:
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: What did you expect instead?
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Scan a folder with a Flutter project
+        2. Click Start
+        3. ...
+    validations:
+      required: true
+  - type: input
+    id: stack
+    attributes:
+      label: Project / framework involved (if applicable)
+      placeholder: "Flutter, Next.js, Expo, ..."
+  - type: input
+    id: version
+    attributes:
+      label: DevDock version
+      description: Settings → About, or `brew list --cask --versions devdock`
+    validations:
+      required: true
+  - type: input
+    id: macos
+    attributes:
+      label: macOS version
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant logs
+      description: Copy from the log drawer if applicable
+      render: shell
