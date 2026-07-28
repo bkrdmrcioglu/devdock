@@ -115,15 +115,40 @@ enum PortManager {
         return true
     }
 
-    /// Recursively terminate a process and its descendants (npm → node, etc.).
-    static func killProcessTree(pid: Int32) {
-        let children = childPIDs(of: pid)
-        for child in children {
-            killProcessTree(pid: child)
+    static func isAlive(_ pid: Int32) -> Bool {
+        pid > 0 && kill(pid, 0) == 0
+    }
+
+    /// Every pid in `pid`'s tree (itself + all descendants), discovered before anything is signaled.
+    private static func collectTree(of pid: Int32) -> [Int32] {
+        var all = [pid]
+        var frontier = [pid]
+        while !frontier.isEmpty {
+            let next = frontier.flatMap { childPIDs(of: $0) }
+            all.append(contentsOf: next)
+            frontier = next
         }
-        kill(pid, SIGTERM)
-        Thread.sleep(forTimeInterval: 0.2)
-        kill(pid, SIGKILL)
+        return all
+    }
+
+    /// Terminate a process and its full descendant tree (flutter → dart VM, npm → node, etc.).
+    ///
+    /// The whole tree is discovered via `pgrep -P` *before* any signal is sent. Signaling
+    /// the group or the parent first (as a naive `kill(-pid, ...)` would) can kill/reparent
+    /// the parent before its children are looked up, so a still-alive child ends up
+    /// re-parented to launchd and invisible to a `pgrep -P pid` run afterwards.
+    static func killProcessTree(pid: Int32) {
+        let all = collectTree(of: pid)
+        kill(-pid, SIGTERM)
+        all.forEach { kill($0, SIGTERM) }
+
+        let deadline = Date().addingTimeInterval(0.6)
+        while Date() < deadline, all.contains(where: isAlive) {
+            Thread.sleep(forTimeInterval: 0.05)
+        }
+
+        kill(-pid, SIGKILL)
+        all.forEach { if isAlive($0) { kill($0, SIGKILL) } }
     }
 
     private static func collectWorkingDirectories(from pid: Int32, into dirs: inout Set<String>, depth: Int) {

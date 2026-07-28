@@ -260,7 +260,7 @@ final class ProcessManager: ObservableObject {
             case "ios", "i", "ios-simulator", "simulator":
                 hint = "No iOS Simulator found. Install one in Xcode → Settings → Platforms."
             case "android", "a", "android-emulator", "emulator":
-                hint = "No Android Emulator found. Create one in Android Studio → Device Manager."
+                hint = "No Android Emulator found (or it didn't finish booting in time). Create one in Android Studio → Device Manager, or wait for it to boot and try again."
             default:
                 hint = "Could not resolve Flutter device for \(platform)."
             }
@@ -621,14 +621,12 @@ final class ProcessManager: ObservableObject {
         appendLog(project.id, "Stopping…")
 
         let pid = process.processIdentifier
-        await Task.detached(priority: .userInitiated) {
-            // Kill process group if we became leader; also walk the tree
-            kill(-pid, SIGTERM)
+        let stillAlive = await Task.detached(priority: .userInitiated) { () -> Bool in
             PortManager.killProcessTree(pid: pid)
-            Thread.sleep(forTimeInterval: 0.4)
             if let portToFree, PortManager.isPortInUse(portToFree) {
                 PortManager.killPort(portToFree)
             }
+            return PortManager.isAlive(pid) || (portToFree.map(PortManager.isPortInUse) ?? false)
         }.value
 
         if process.isRunning {
@@ -646,10 +644,10 @@ final class ProcessManager: ObservableObject {
         offline.cpuHint = nil
         offline.memoryHint = nil
         offline.boundPort = nil
-        offline.portNotice = nil
+        offline.portNotice = stillAlive ? "Some child processes may still be exiting — check Activity Monitor if Start misbehaves." : nil
         states[project.id] = offline
         resourcePathByProject[project.id] = nil
-        appendLog(project.id, "Stopped.")
+        appendLog(project.id, stillAlive ? "Stopped (tree kill sent; a stray child may still be exiting)." : "Stopped.")
     }
 
     func clearLogs(for id: UUID) {

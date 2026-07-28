@@ -3,7 +3,7 @@ import Foundation
 /// Versioned changelog. Newest release first — bump `contentID` when adding a release.
 enum WhatsNew {
     /// Change when returning users should see the sheet again (usually = latest version).
-    static let contentID = "0.2.9-suite"
+    static let contentID = "0.2.10-flutter-reliability"
 
     private static let seenKey = "devdock.whatsNew.seenID"
 
@@ -30,6 +30,13 @@ enum WhatsNew {
 
     /// Full history, newest → oldest. Add a new `Release` block at the top each ship.
     static let releases: [Release] = [
+        Release(version: "0.2.10", items: [
+            Item(
+                title: "Flutter start/stop reliability",
+                detail: "Stop now kills the full process tree before signaling, verifies it actually exited, and Android/iOS device boot is polled instead of guessed.",
+                systemImage: "checkmark.seal"
+            ),
+        ]),
         Release(version: "0.2.9", items: [
             Item(
                 title: "Brand mark",

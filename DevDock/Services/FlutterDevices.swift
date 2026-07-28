@@ -234,12 +234,18 @@ enum FlutterDevices {
             return nil
         }
 
-        // Prefer concrete emulator id once it shows up; fall back to -d emulator
-        Thread.sleep(forTimeInterval: 1.5)
-        if let emu = available(at: projectPath).first(where: { isAndroid($0) && $0.emulator == true }) {
-            return Resolved(id: emu.id, label: "\(emu.name) (emulator)")
+        // Poll for the concrete emulator id (e.g. "emulator-5554") to show up in `flutter
+        // devices`. A fixed short sleep isn't enough — AVD boot commonly takes well past 1.5s —
+        // and "emulator" is not a real -d target flutter recognizes, so there's no usable
+        // fallback id to return if it never appears in time.
+        let deadline = Date().addingTimeInterval(45)
+        while Date() < deadline {
+            if let emu = available(at: projectPath).first(where: { isAndroid($0) && $0.emulator == true }) {
+                return Resolved(id: emu.id, label: "\(emu.name) (emulator)")
+            }
+            Thread.sleep(forTimeInterval: 1.0)
         }
-        return Resolved(id: "emulator", label: "Android Emulator")
+        return nil
     }
 
     static func summaryLines(at path: String) -> [String] {

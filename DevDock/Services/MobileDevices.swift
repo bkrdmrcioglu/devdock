@@ -89,12 +89,59 @@ enum MobileDevices {
     /// Call only on explicit user action (iOS Quick target / Flutter ios resolve) — never from command resolve.
     @discardableResult
     static func prepareIOSSimulator(udid: String) -> Bool {
-        let booted = bootSimctlDeviceIfNeeded(udid: udid)
+        guard bootSimctlDeviceIfNeeded(udid: udid) else { return false }
+        // `simctl boot` returns as soon as the boot request is issued, not once springboard is
+        // actually up — a cold boot can take well past that. Poll actual device state so callers
+        // (e.g. `flutter run -d <udid>`) don't race a simulator that's still coming up.
+        let booted = waitForSimulatorBooted(udid: udid)
         // Avoid focusing Simulator.app if the device is already Booted and app is running.
         if !booted || !isSimulatorAppRunning() {
             openSimulatorApp()
         }
         return booted
+    }
+
+    /// Poll `simctl list devices` until `udid` reports state "Booted", or `timeout` elapses.
+    @discardableResult
+    static func waitForSimulatorBooted(udid: String, timeout: TimeInterval = 60) -> Bool {
+        let deadline = Date().addingTimeInterval(timeout)
+        while Date() < deadline {
+            if simctlDeviceState(udid: udid) == "Booted" {
+                return true
+            }
+            Thread.sleep(forTimeInterval: 0.5)
+        }
+        return false
+    }
+
+    private static func simctlDeviceState(udid: String) -> String? {
+        let process = Process()
+        let pipe = Pipe()
+        process.executableURL = URL(fileURLWithPath: "/usr/bin/xcrun")
+        process.arguments = ["simctl", "list", "devices", "-j"]
+        process.standardOutput = pipe
+        process.standardError = Pipe()
+        process.environment = Toolchain.processEnvironment()
+        do {
+            try process.run()
+            process.waitUntilExit()
+        } catch {
+            return nil
+        }
+        let data = pipe.fileHandleForReading.readDataToEndOfFile()
+        guard let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+              let devicesByRuntime = json["devices"] as? [String: Any] else {
+            return nil
+        }
+        for (_, value) in devicesByRuntime {
+            guard let items = value as? [[String: Any]] else { continue }
+            for item in items {
+                if let itemUDID = item["udid"] as? String, itemUDID == udid {
+                    return item["state"] as? String
+                }
+            }
+        }
+        return nil
     }
 
     private static func isSimulatorAppRunning() -> Bool {
