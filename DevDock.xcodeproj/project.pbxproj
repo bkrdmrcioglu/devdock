@@ -31,7 +31,6 @@
 		61D4AE511CD5FCA2C1E1E354 /* DevDockStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5F96A0B1006E1415373466C /* DevDockStore.swift */; };
 		691B5DF0C62005A7A348C6A8 /* SuiteChromeTrail.swift in Sources */ = {isa = PBXBuildFile; fileRef = 285CCE4C12970CA60EBE5658 /* SuiteChromeTrail.swift */; };
 		69AB5FEA01CAFF237517FABE /* HomebrewUpdater.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92AD7B0B6359EA998988F06B /* HomebrewUpdater.swift */; };
-		6E848B32FD410858CFB7EA66 /* LicenseManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99EA53E7708E528FCFE8BB93 /* LicenseManager.swift */; };
 		742344D909DD10F2D56E7BC9 /* FrameworkDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79439CE936837C781AF8CED5 /* FrameworkDetector.swift */; };
 		86428992F6FDCB45C61B963D /* DevDockApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E024E862D9A5A1ADD7D812E /* DevDockApp.swift */; };
 		8769CD28C5DD4E306D466517 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 503704500303AB1D72CBF3FF /* Assets.xcassets */; };
@@ -76,7 +75,6 @@
 		88DF942F1FA1DC0798D09E0A /* StartCommandResolver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StartCommandResolver.swift; sourceTree = "<group>"; };
 		92AD7B0B6359EA998988F06B /* HomebrewUpdater.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomebrewUpdater.swift; sourceTree = "<group>"; };
 		97845998D2FED5431C569747 /* ProjectScanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectScanner.swift; sourceTree = "<group>"; };
-		99EA53E7708E528FCFE8BB93 /* LicenseManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LicenseManager.swift; sourceTree = "<group>"; };
 		9A673B9145802C4B591FE06E /* StackRuntimeCatalog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StackRuntimeCatalog.swift; sourceTree = "<group>"; };
 		A2AA7AB670EE3D1E3CC4B147 /* LogsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogsView.swift; sourceTree = "<group>"; };
 		A669EEFB35387A2460BF180E /* ExternalLauncher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExternalLauncher.swift; sourceTree = "<group>"; };
@@ -113,7 +111,6 @@
 				C51F95A44D1DD2302879E24C /* GitService.swift */,
 				60CECE5760FF1992BA2B517F /* HealthProbe.swift */,
 				92AD7B0B6359EA998988F06B /* HomebrewUpdater.swift */,
-				99EA53E7708E528FCFE8BB93 /* LicenseManager.swift */,
 				DFF94CA6B380BD853385DBC2 /* MobileDevices.swift */,
 				B3FCC610DD70E140E29970C7 /* PortManager.swift */,
 				03C8CC416C934CE3CB434C71 /* ProcessManager.swift */,
@@ -281,7 +278,6 @@
 				12FE0D0016D06EEAD3B92BF7 /* GitService.swift in Sources */,
 				30598B43E7B1785D03A4B646 /* HealthProbe.swift in Sources */,
 				69AB5FEA01CAFF237517FABE /* HomebrewUpdater.swift in Sources */,
-				6E848B32FD410858CFB7EA66 /* LicenseManager.swift in Sources */,
 				051740B67B6ABE2D10E3699A /* LogsView.swift in Sources */,
 				1641BB691DE5129202DCD937 /* MenuBarView.swift in Sources */,
 				F1372A6E9D90E7A2343CA336 /* MobileDevices.swift in Sources */,
@@ -345,7 +341,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 18;
+				CURRENT_PROJECT_VERSION = 19;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
@@ -364,7 +360,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 0.2.10;
+				MARKETING_VERSION = 0.3.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -458,7 +454,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 18;
+				CURRENT_PROJECT_VERSION = 19;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -471,7 +467,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 0.2.10;
+				MARKETING_VERSION = 0.3.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";

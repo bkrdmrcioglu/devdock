@@ -27,4 +27,6 @@ enum AppInfo {
     static var tagline: String {
         "All your local stacks. One workspace."
     }
+
+    static let supportURL = URL(string: "https://buymeacoffee.com/bkrdmrcioglu")!
 }

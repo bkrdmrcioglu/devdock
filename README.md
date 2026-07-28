@@ -2,7 +2,7 @@
 
 macOS developer workspace manager — scan local projects, start/stop stacks, mobile device targets, workspaces, menu bar control.
 
-**Version:** 0.2.0
+**Version:** 0.3.0
 
 ## Install (users)
 
@@ -90,7 +90,7 @@ Ad-hoc signed for local use. Notarize before public distribution.
 - Workspaces + auto suggestions
 - Favorites, recent, sidebar filters
 - Menu bar + About
-- Freemium: Free = 3 projects; Pro unlocks all (Lemon Squeezy)
+- Free & open source — all projects and workspaces unlocked
 
 ## Stack fixtures (dev)
 
@@ -107,7 +107,6 @@ See [Fixtures/README.md](Fixtures/README.md). Add `Fixtures/stacks` as a scan ro
 
 - Marketing copy: [`docs/`](docs/) → sync to [devdock-site](https://github.com/bkrdmrcioglu/devdock-site)
 - Live site: https://bkrdmrcioglu.github.io/devdock-site/
-- Lemon notes: [`docs/LEMON.md`](docs/LEMON.md)
 
 ## Notes
 

@@ -1,5 +1,4 @@
 import Foundation
-import Combine
 import AppKit
 
 @MainActor
@@ -35,7 +34,6 @@ final class DevDockStore: ObservableObject {
     @Published var isHomebrewUpdating = false
 
     let processManager = ProcessManager()
-    let licenseManager = LicenseManager()
     private var resourceTimer: Timer?
     private var portPollTimer: Timer?
     private var idleTimer: Timer?
@@ -44,7 +42,6 @@ final class DevDockStore: ObservableObject {
     private var didLaunchMorning = false
     private var isPollingPorts = false
     private var didAutoCheckUpdates = false
-    private var cancellables = Set<AnyCancellable>()
 
     private static let dismissedUpdateKey = "devdock.update.dismissedVersion"
 
@@ -62,13 +59,6 @@ final class DevDockStore: ObservableObject {
         if settings.notifyOnReady {
             AppNotifier.requestPermissionIfNeeded()
         }
-        // Forward license changes so chrome / free-cap UI refresh without reopening Settings.
-        licenseManager.objectWillChange
-            .receive(on: RunLoop.main)
-            .sink { [weak self] _ in
-                self?.objectWillChange.send()
-            }
-            .store(in: &cancellables)
     }
 
     /// Re-detect framework/port/start command for cached projects (fixes stale React/3000 on Expo apps).
@@ -132,26 +122,9 @@ final class DevDockStore: ObservableObject {
         projects.first { $0.id == selectedProjectID }
     }
 
-    var isPro: Bool { licenseManager.isPro }
-
-    /// Free plan only exposes a capped project list; Pro sees everything.
-    var accessibleProjects: [DevProject] {
-        if isPro { return projects }
-        let favorites = projects.filter(\.isFavorite)
-        let rest = projects.filter { !$0.isFavorite }
-            .sorted { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
-        return Array((favorites + rest).prefix(LicenseLimits.freeProjectCap))
-    }
-
-    var lockedProjectCount: Int {
-        max(0, projects.count - accessibleProjects.count)
-    }
-
-    var canUseWorkspaces: Bool { isPro }
-
     var filteredProjects: [DevProject] {
         let q = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
-        var base = accessibleProjects
+        var base = projects
 
         switch sidebarFilter {
         case .all:
@@ -597,10 +570,6 @@ final class DevDockStore: ObservableObject {
     }
 
     func startWorkspace(_ workspace: WorkspaceProfile) {
-        guard canUseWorkspaces else {
-            workspaceActivityMessage = "Workspaces require DevDock Pro"
-            return
-        }
         let members = workspace.projectIDs.compactMap { id in projects.first(where: { $0.id == id }) }
         guard !members.isEmpty else {
             workspaceActivityMessage = "\(workspace.name): no matching projects (rescan?)"
@@ -699,10 +668,6 @@ final class DevDockStore: ObservableObject {
         openBrowsers: Bool = false,
         isMorningRoutine: Bool = false
     ) {
-        guard canUseWorkspaces else {
-            workspaceActivityMessage = "Workspaces require DevDock Pro"
-            return
-        }
         if isMorningRoutine {
             for i in settings.workspaces.indices {
                 settings.workspaces[i].isMorningRoutine = false
@@ -725,10 +690,6 @@ final class DevDockStore: ObservableObject {
     }
 
     func applyWorkspaceSuggestion(_ suggestion: WorkspaceSuggestion, openBrowsers: Bool = true) {
-        guard canUseWorkspaces else {
-            workspaceActivityMessage = "Workspaces require DevDock Pro"
-            return
-        }
         let idSet = Set(suggestion.projectIDs)
         if settings.workspaces.contains(where: { Set($0.projectIDs) == idSet }) {
             workspaceActivityMessage = "\(suggestion.name) already exists"

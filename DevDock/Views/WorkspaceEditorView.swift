@@ -20,39 +20,33 @@ struct WorkspaceEditorView: View {
                 .padding(.top, 20)
                 .padding(.bottom, 12)
 
-            if store.canUseWorkspaces {
-                ScrollView {
-                    VStack(alignment: .leading, spacing: 14) {
-                        if !store.workspaceSuggestions.isEmpty {
-                            suggestionsSection
-                        }
-
-                        if !store.workspaceActivityMessage.isEmpty {
-                            activityBanner
-                        }
-
-                        if !store.settings.workspaces.isEmpty {
-                            existingWorkspacesSection
-                        }
-
-                        Divider().overlay(DevDockTheme.line)
-
-                        formSection
+            ScrollView {
+                VStack(alignment: .leading, spacing: 14) {
+                    if !store.workspaceSuggestions.isEmpty {
+                        suggestionsSection
                     }
-                    .padding(.horizontal, 24)
-                    .padding(.bottom, 16)
+
+                    if !store.workspaceActivityMessage.isEmpty {
+                        activityBanner
+                    }
+
+                    if !store.settings.workspaces.isEmpty {
+                        existingWorkspacesSection
+                    }
+
+                    Divider().overlay(DevDockTheme.line)
+
+                    formSection
                 }
-
-                Divider().overlay(DevDockTheme.line)
-
-                footerBar
-                    .padding(.horizontal, 24)
-                    .padding(.vertical, 14)
-            } else {
-                proUpsell
-                    .padding(24)
-                Spacer(minLength: 0)
+                .padding(.horizontal, 24)
+                .padding(.bottom, 16)
             }
+
+            Divider().overlay(DevDockTheme.line)
+
+            footerBar
+                .padding(.horizontal, 24)
+                .padding(.vertical, 14)
         }
         .frame(width: 580, height: 720)
         .background(DevDockTheme.ink)
@@ -178,25 +172,6 @@ struct WorkspaceEditorView: View {
             .buttonStyle(AccentButtonStyle())
             .disabled(name.trimmingCharacters(in: .whitespaces).isEmpty || selectedIDs.isEmpty)
         }
-    }
-
-    private var proUpsell: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Text("Workspaces are a Pro feature")
-                .font(.system(size: 15, weight: .bold, design: .rounded))
-            Text("Free plan covers \(LicenseLimits.freeProjectCap) projects. Upgrade to group stacks and launch them together.")
-                .font(.system(size: 12))
-                .foregroundStyle(DevDockTheme.mist)
-                .fixedSize(horizontal: false, vertical: true)
-            Button("Buy Pro — \(LicenseLimits.proPriceLabel)") {
-                NSWorkspace.shared.open(LicenseLimits.buyURL)
-            }
-            .buttonStyle(AccentButtonStyle())
-        }
-        .padding(14)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(DevDockTheme.panel)
-        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
     }
 
     private var suggestionsSection: some View {

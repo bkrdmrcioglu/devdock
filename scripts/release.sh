@@ -6,7 +6,7 @@ DIST="$ROOT/dist"
 APP_NAME="DevDock"
 SCHEME="DevDock"
 CONFIG="Release"
-IDENTITY="${CODE_SIGN_IDENTITY:-Developer ID Application: Bekir Demircioglu (HLZQLSTBB8)}"
+IDENTITY="${CODE_SIGN_IDENTITY:-12392A31803093ED388B618318523BA4000AB9E0}" # Developer ID Application (SHA-1) — name is ambiguous, two identical certs in keychain
 TEAM="${DEVELOPMENT_TEAM:-HLZQLSTBB8}"
 NOTARY_PROFILE="${NOTARY_PROFILE:-NotaryProfile}"
 

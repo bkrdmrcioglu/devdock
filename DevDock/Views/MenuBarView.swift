@@ -49,30 +49,23 @@ struct MenuBarView: View {
 
         if !store.settings.workspaces.isEmpty {
             Text("Workspaces")
-            if store.canUseWorkspaces {
-                if let morning = store.morningRoutine {
-                    Button("☀ Morning · \(morning.name)") {
-                        store.startMorningRoutine()
-                    }
-                    .disabled(store.isLaunchingWorkspace)
+            if let morning = store.morningRoutine {
+                Button("☀ Morning · \(morning.name)") {
+                    store.startMorningRoutine()
                 }
-                ForEach(store.settings.workspaces) { workspace in
-                    let alive = store.workspaceAliveCount(workspace)
-                    let prefix = workspace.isMorningRoutine ? "☀ " : ""
-                    Button("\(prefix)Start \(workspace.name)") {
-                        store.startWorkspace(workspace)
-                    }
-                    .disabled(store.isLaunchingWorkspace)
-                    if alive > 0 {
-                        Button("Stop \(workspace.name) (\(alive) up)") {
-                            store.stopWorkspace(workspace)
-                        }
-                    }
+                .disabled(store.isLaunchingWorkspace)
+            }
+            ForEach(store.settings.workspaces) { workspace in
+                let alive = store.workspaceAliveCount(workspace)
+                let prefix = workspace.isMorningRoutine ? "☀ " : ""
+                Button("\(prefix)Start \(workspace.name)") {
+                    store.startWorkspace(workspace)
                 }
-            } else {
-                Button("Unlock Workspaces (Pro)") {
-                    NSWorkspace.shared.open(LicenseLimits.buyURL)
-                    activateApp()
+                .disabled(store.isLaunchingWorkspace)
+                if alive > 0 {
+                    Button("Stop \(workspace.name) (\(alive) up)") {
+                        store.stopWorkspace(workspace)
+                    }
                 }
             }
             Divider()

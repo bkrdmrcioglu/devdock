@@ -36,7 +36,6 @@ struct ContentView: View {
             .sheet(isPresented: $showSettings) {
                 SettingsView()
                     .environmentObject(store)
-                    .environmentObject(store.licenseManager)
             }
             .sheet(isPresented: $showWhatsNew) {
                 WhatsNewView(onDismiss: { whatsNewEpoch += 1 })
@@ -71,9 +70,6 @@ struct ContentView: View {
             if let update = store.availableUpdate {
                 updateBanner(update)
             }
-            if !store.isPro && store.lockedProjectCount > 0 {
-                upgradeBanner
-            }
             if !store.settings.workspaces.isEmpty {
                 workspaceStrip
             }
@@ -89,19 +85,6 @@ struct ContentView: View {
     private var showsWhatsNewBadge: Bool {
         _ = whatsNewEpoch
         return WhatsNew.shouldPresent
-    }
-
-    private var upgradeBanner: some View {
-        HStack(spacing: 8) {
-            Text("+\(store.lockedProjectCount) locked · Pro unlocks all")
-                .font(.system(size: 11, weight: .semibold))
-                .foregroundStyle(DevDockTheme.warn)
-            Spacer()
-            Button("Upgrade") { showSettings = true }
-                .buttonStyle(GhostButtonStyle())
-        }
-        .padding(.horizontal, 12)
-        .padding(.vertical, 8)
     }
 
     private func updateBanner(_ update: UpdateChecker.ReleaseInfo) -> some View {
@@ -170,14 +153,13 @@ struct ContentView: View {
                 Spacer(minLength: 8)
 
                 SuiteChromeTrail(
-                    isPro: store.isPro,
                     showsWhatsNewBadge: showsWhatsNewBadge,
                     accent: DevDockTheme.accent,
                     warn: DevDockTheme.warn,
                     mist: DevDockTheme.mist,
                     ink: DevDockTheme.ink,
                     elevated: DevDockTheme.panelElevated,
-                    onUpgrade: { NSWorkspace.shared.open(LicenseLimits.buyURL) },
+                    onSupport: { NSWorkspace.shared.open(AppInfo.supportURL) },
                     onWhatsNew: { showWhatsNew = true },
                     onSettings: { showSettings = true }
                 )
@@ -461,19 +443,15 @@ struct ContentView: View {
     private var footer: some View {
         HStack(spacing: 12) {
             Button {
-                if store.canUseWorkspaces {
-                    showWorkspaceSheet = true
-                } else {
-                    showSettings = true
-                }
+                showWorkspaceSheet = true
             } label: {
-                Label(store.canUseWorkspaces ? "Workspaces" : "Workspaces (Pro)", systemImage: "square.stack.3d.up")
+                Label("Workspaces", systemImage: "square.stack.3d.up")
             }
             .buttonStyle(.plain)
 
             Spacer()
 
-            Text("\(store.filteredProjects.count)/\(store.accessibleProjects.count)")
+            Text("\(store.filteredProjects.count)/\(store.projects.count)")
                 .font(.system(size: 11))
                 .foregroundStyle(DevDockTheme.mist)
         }

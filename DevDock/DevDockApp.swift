@@ -10,7 +10,6 @@ struct DevDockApp: App {
             RootView()
                 .environmentObject(store)
                 .environmentObject(store.processManager)
-                .environmentObject(store.licenseManager)
                 .frame(minWidth: 980, minHeight: 620)
                 .sheet(isPresented: $showAbout) {
                     AboutView()

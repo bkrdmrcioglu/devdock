@@ -1,10 +1,8 @@
 import SwiftUI
 
-/// Suite chrome trail — hint · Upgrade/Pro · sparkles · settings (32×32).
-/// Keep this identical across DevCheck / DevMail / DevSQL / DevDock.
+/// Suite chrome trail — hint · support · sparkles · settings (32×32).
 struct SuiteChromeTrail: View {
     var hint: String? = nil
-    var isPro: Bool
     var showsWhatsNewBadge: Bool
     var showSettingsButton: Bool = true
     let accent: Color
@@ -12,7 +10,7 @@ struct SuiteChromeTrail: View {
     let mist: Color
     let ink: Color
     let elevated: Color
-    var onUpgrade: () -> Void
+    var onSupport: () -> Void
     var onWhatsNew: () -> Void
     var onSettings: () -> Void = {}
 
@@ -30,38 +28,18 @@ struct SuiteChromeTrail: View {
                     .clipShape(Capsule())
             }
 
-            if isPro {
-                Text("Pro")
-                    .font(.system(size: 11, weight: .bold, design: .rounded))
-                    .foregroundStyle(accent)
-                    .lineLimit(1)
-                    .fixedSize(horizontal: true, vertical: false)
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 6)
-                    .background(accent.opacity(0.14))
-                    .clipShape(Capsule())
-            } else {
-                Button(action: onUpgrade) {
-                    HStack(spacing: 5) {
-                        Image(systemName: "crown.fill")
-                            .font(.system(size: 10, weight: .bold))
-                        Text("Upgrade")
-                            .font(.system(size: 11, weight: .bold, design: .rounded))
-                            .lineLimit(1)
-                    }
-                    .foregroundStyle(warn)
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 6)
-                    .background(warn.opacity(0.14))
-                    .overlay(Capsule().stroke(warn.opacity(0.35), lineWidth: 1))
-                    .clipShape(Capsule())
-                    .contentShape(Capsule())
-                }
-                .buttonStyle(.plain)
-                .fixedSize()
-                .layoutPriority(2)
-                .help("Unlock Pro in Settings")
+            Button(action: onSupport) {
+                Image(systemName: "cup.and.saucer.fill")
+                    .font(.system(size: 13, weight: .semibold))
+                    .foregroundStyle(mist)
+                    .frame(width: 32, height: 32)
+                    .background(elevated)
+                    .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+                    .contentShape(Rectangle())
             }
+            .buttonStyle(.plain)
+            .fixedSize()
+            .help("Support DevDock — Buy Me a Coffee")
 
             Button(action: onWhatsNew) {
                 ZStack(alignment: .topTrailing) {
@@ -97,7 +75,7 @@ struct SuiteChromeTrail: View {
                 }
                 .buttonStyle(.plain)
                 .fixedSize()
-                .help("Settings & license")
+                .help("Settings")
             }
         }
     }

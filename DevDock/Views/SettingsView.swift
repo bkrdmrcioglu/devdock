@@ -3,7 +3,6 @@ import AppKit
 
 struct SettingsView: View {
     @EnvironmentObject private var store: DevDockStore
-    @EnvironmentObject private var license: LicenseManager
     @Environment(\.dismiss) private var dismiss
     @State private var roots: [String] = []
     @State private var showAbout = false
@@ -22,7 +21,7 @@ struct SettingsView: View {
                         .buttonStyle(GhostButtonStyle())
                 }
 
-                licenseCard
+                supportCard
 
                 updatesCard
 
@@ -172,94 +171,31 @@ struct SettingsView: View {
         .sheet(isPresented: $showWhatsNew) { WhatsNewView() }
     }
 
-    private var licenseCard: some View {
+    private var supportCard: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
-                Text(license.isPro ? "DevDock Pro" : "Free plan")
+                Text("DevDock is free & open source")
                     .font(.system(size: 15, weight: .bold, design: .rounded))
                 Spacer()
-                Text(license.isPro ? "ACTIVE" : "LIMITED")
-                    .font(.system(size: 10, weight: .bold))
-                    .foregroundStyle(license.isPro ? DevDockTheme.accent : DevDockTheme.warn)
             }
 
-            Text(license.isPro
-                 ? (license.statusMessage.contains("Debug")
-                    ? "Debug build · all projects + workspaces unlocked."
-                    : "Unlimited projects + workspaces unlocked.")
-                 : "Free includes \(LicenseLimits.freeProjectCap) projects. Pro (\(LicenseLimits.proPriceLabel) one-time) unlocks workspaces & unlimited projects.")
+            Text("All projects and workspaces are unlocked for everyone. If DevDock saves you time, consider buying a coffee.")
                 .font(.system(size: 12))
                 .foregroundStyle(DevDockTheme.mist)
 
-            if !license.statusMessage.isEmpty {
-                Text(license.statusMessage)
-                    .font(.system(size: 11, weight: .medium))
-                    .foregroundStyle(DevDockTheme.chalk.opacity(0.85))
+            Button {
+                NSWorkspace.shared.open(AppInfo.supportURL)
+            } label: {
+                Label("Buy Me a Coffee", systemImage: "cup.and.saucer.fill")
             }
-
-            if license.isPro {
-                if !license.licenseKeyMasked.isEmpty {
-                    Text("Key \(license.licenseKeyMasked)")
-                        .font(DevDockTheme.mono)
-                        .foregroundStyle(DevDockTheme.mist)
-                }
-                if !license.customerEmail.isEmpty {
-                    Text(license.customerEmail)
-                        .font(.system(size: 11))
-                        .foregroundStyle(DevDockTheme.mist)
-                }
-                HStack {
-                    Button("Deactivate") {
-                        Task { await license.deactivate() }
-                    }
-                    .buttonStyle(GhostButtonStyle())
-                    .disabled(license.isBusy)
-                    Button("My licenses") {
-                        NSWorkspace.shared.open(LicenseLimits.licensesPortalURL)
-                    }
-                    .buttonStyle(GhostButtonStyle())
-                    Button("Buy another seat") {
-                        NSWorkspace.shared.open(LicenseLimits.buyURL)
-                    }
-                    .buttonStyle(GhostButtonStyle())
-                }
-            } else {
-                TextField("Lemon Squeezy license key", text: $license.draftKey)
-                    .textFieldStyle(.plain)
-                    .font(DevDockTheme.mono)
-                    .padding(10)
-                    .background(DevDockTheme.panelElevated)
-                    .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
-
-                Text("Buy at DevSuites checkout, then paste the key — or look it up under My licenses.")
-                    .font(.system(size: 11))
-                    .foregroundStyle(DevDockTheme.mist)
-
-                HStack {
-                    Button(license.isBusy ? "Working…" : "Activate Pro") {
-                        Task { await license.activate() }
-                    }
-                    .buttonStyle(AccentButtonStyle())
-                    .disabled(license.isBusy || license.draftKey.trimmingCharacters(in: .whitespaces).isEmpty)
-
-                    Button("Buy Pro — \(LicenseLimits.proPriceLabel)") {
-                        NSWorkspace.shared.open(LicenseLimits.buyURL)
-                    }
-                    .buttonStyle(GhostButtonStyle())
-
-                    Button("My licenses") {
-                        NSWorkspace.shared.open(LicenseLimits.licensesPortalURL)
-                    }
-                    .buttonStyle(GhostButtonStyle())
-                }
-            }
+            .buttonStyle(AccentButtonStyle())
         }
         .padding(14)
         .background(DevDockTheme.panel)
         .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
         .overlay(
             RoundedRectangle(cornerRadius: 12, style: .continuous)
-                .stroke(license.isPro ? DevDockTheme.accent.opacity(0.4) : DevDockTheme.line, lineWidth: 1)
+                .stroke(DevDockTheme.line, lineWidth: 1)
         )
     }
 
