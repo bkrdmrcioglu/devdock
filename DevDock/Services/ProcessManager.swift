@@ -36,6 +36,8 @@ final class ProcessManager: ObservableObject {
     /// Project path for resource sampling (Flutter Runner lookup, etc.).
     private var resourcePathByProject: [UUID: String] = [:]
     private var healthTasks: [UUID: Task<Void, Never>] = [:]
+    /// Bumped to cancel an in-flight `startAsync` (Stop / Restart / new Start).
+    private var startEpoch: [UUID: UInt64] = [:]
 
     func status(for id: UUID) -> ProjectStatus {
         states[id]?.status ?? .offline
@@ -302,6 +304,8 @@ final class ProcessManager: ObservableObject {
             return
         }
 
+        let epoch = beginStartEpoch(project.id)
+
         var state = states[project.id] ?? RuntimeState()
         state.status = .starting
         state.lastError = nil
@@ -318,6 +322,10 @@ final class ProcessManager: ObservableObject {
             let command = StartCommandResolver.resolve(at: path, framework: framework, port: port)
             return (framework, port, command)
         }.value
+        guard isStartCurrent(project.id, epoch: epoch) else {
+            noteStartCancelled(project.id)
+            return
+        }
 
         let framework = detected.0
         let baseCommand = project.customStartCommand ?? detected.2
@@ -344,17 +352,29 @@ final class ProcessManager: ObservableObject {
             let busy = await Task.detached(priority: .utility) {
                 PortManager.isPortInUse(preferred)
             }.value
+            guard isStartCurrent(project.id, epoch: epoch) else {
+                noteStartCancelled(project.id)
+                return
+            }
             if busy {
                 if forceKillPort {
                     appendLog(project.id, "Port \(preferred) busy — killing process…")
                     await Task.detached(priority: .utility) {
                         PortManager.killPort(preferred)
                     }.value
+                    guard isStartCurrent(project.id, epoch: epoch) else {
+                        noteStartCancelled(project.id)
+                        return
+                    }
                     effectivePort = preferred
                 } else {
                     let free = await Task.detached(priority: .utility) {
                         PortManager.nextFreePort(preferred: preferred)
                     }.value
+                    guard isStartCurrent(project.id, epoch: epoch) else {
+                        noteStartCancelled(project.id)
+                        return
+                    }
                     guard let free else {
                         failStart(project.id, "Port \(preferred) busy and no free port nearby.")
                         return
@@ -401,6 +421,11 @@ final class ProcessManager: ObservableObject {
             command = baseCommand
         }
 
+        guard isStartCurrent(project.id, epoch: epoch) else {
+            noteStartCancelled(project.id)
+            return
+        }
+
         guard let executable = Toolchain.resolveExecutable(command[0], path: project.path) else {
             failStart(project.id, "Command not found: \(command[0]) (check PATH / install tool)")
             return
@@ -442,9 +467,25 @@ final class ProcessManager: ObservableObject {
         }
 
         do {
+            guard isStartCurrent(project.id, epoch: epoch) else {
+                stdinPipes[project.id] = nil
+                noteStartCancelled(project.id)
+                return
+            }
             try process.run()
             let pid = process.processIdentifier
             setpgid(pid, pid)
+
+            // Stop may have cancelled between run() and here — tear down immediately.
+            guard isStartCurrent(project.id, epoch: epoch) else {
+                await Task.detached(priority: .userInitiated) {
+                    PortManager.killProcessTree(pid: pid)
+                }.value
+                if process.isRunning { process.terminate() }
+                stdinPipes[project.id] = nil
+                noteStartCancelled(project.id)
+                return
+            }
 
             processes[project.id] = process
             var running = states[project.id] ?? RuntimeState()
@@ -465,8 +506,34 @@ final class ProcessManager: ObservableObject {
             refreshResourceHintsAsync(for: project.id)
         } catch {
             stdinPipes[project.id] = nil
+            guard isStartCurrent(project.id, epoch: epoch) else {
+                noteStartCancelled(project.id)
+                return
+            }
             failStart(project.id, "Failed to start: \(error.localizedDescription)")
         }
+    }
+
+    @discardableResult
+    private func beginStartEpoch(_ projectID: UUID) -> UInt64 {
+        let next = (startEpoch[projectID] ?? 0) + 1
+        startEpoch[projectID] = next
+        return next
+    }
+
+    private func cancelStartEpoch(_ projectID: UUID) {
+        startEpoch[projectID] = (startEpoch[projectID] ?? 0) + 1
+    }
+
+    private func isStartCurrent(_ projectID: UUID, epoch: UInt64) -> Bool {
+        startEpoch[projectID] == epoch
+    }
+
+    private func noteStartCancelled(_ projectID: UUID) {
+        // Stop already reported cancellation; a superseded start still logs once.
+        let status = states[projectID]?.status
+        if status == .stopping || status == .offline { return }
+        appendLog(projectID, "Start cancelled.")
     }
 
     /// Mark error + one-line reason (UI opens log drawer via status change).
@@ -596,22 +663,35 @@ final class ProcessManager: ObservableObject {
 
     func stopAsync(_ project: DevProject) async {
         cancelHealthProbe(project.id)
-        let portToFree = effectivePort(for: project)
+        // Invalidate any in-flight start so it cannot race back to .running.
+        cancelStartEpoch(project.id)
+        let portToFree = states[project.id]?.boundPort ?? (
+            processes[project.id] != nil ? effectivePort(for: project) : nil
+        )
 
         guard let process = processes[project.id] else {
+            let wasStarting = states[project.id]?.status == .starting
+            var state = states[project.id] ?? RuntimeState()
+            state.status = .stopping
+            states[project.id] = state
+            appendLog(project.id, wasStarting ? "Cancelling start…" : "Stopping…")
+
+            // Only free a port we actually bound — don't kill Flutter's default 8080
+            // while a mobile/desktop start was still preparing (no host listen).
             if let portToFree {
                 appendLog(project.id, "No tracked process — freeing port \(portToFree)…")
                 await Task.detached(priority: .utility) {
                     PortManager.killPort(portToFree)
                 }.value
             }
-            var state = states[project.id] ?? RuntimeState()
-            state.status = .offline
-            state.pid = nil
-            state.boundPort = nil
-            state.portNotice = nil
-            state.portHealth = .idle
-            states[project.id] = state
+            var offline = states[project.id] ?? RuntimeState()
+            offline.status = .offline
+            offline.pid = nil
+            offline.boundPort = nil
+            offline.portNotice = nil
+            offline.portHealth = .idle
+            states[project.id] = offline
+            appendLog(project.id, wasStarting ? "Start cancelled." : "Stopped.")
             return
         }
 
