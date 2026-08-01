@@ -1,8 +1,192 @@
 <!DOCTYPE html>
-<html lang="en"><head>
-<meta charset="utf-8" />
-<meta http-equiv="refresh" content="0; url=https://devsuites.dev/devdock/" />
-<link rel="canonical" href="https://devsuites.dev/devdock/" />
-<title>Redirect…</title>
-<script>location.replace("https://devsuites.dev/devdock/");</script>
-</head><body><p><a href="https://devsuites.dev/devdock/">Continue</a></p></body></html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DevDock — Local Dev Stack Manager for macOS</title>
+<meta name="description" content="A free, open source, native macOS app that finds your local projects and starts API, web, and mobile stacks in one click. Workspaces, simulators, ports, and logs — no Docker circus.">
+<meta property="og:title" content="DevDock — Local Dev Stack Manager for macOS">
+<meta property="og:description" content="All your local dev stacks. One workspace. Free, open source, notarized.">
+<meta property="og:image" content="https://bkrdmrcioglu.github.io/devdock/assets/og.png">
+<meta property="og:url" content="https://bkrdmrcioglu.github.io/devdock/">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" type="image/png" href="assets/favicon.png">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --green: #3ddc91; --teal: #14b8a6;
+    --bg: #0b0f0e; --card: #141a19; --text: #ecf3f0; --muted: #93a5a0;
+  }
+  body { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+  .wrap { max-width: 980px; margin: 0 auto; padding: 0 24px; }
+  header { padding: 90px 0 50px; text-align: center; background: radial-gradient(ellipse 80% 60% at 50% -10%, rgba(61,220,145,.22), transparent); }
+  .logo { width: 84px; height: 84px; border-radius: 20px; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 22px; box-shadow: 0 12px 40px rgba(61,220,145,.28); overflow: hidden; }
+  .logo img { width: 100%; height: 100%; }
+  h1 { font-size: 52px; font-weight: 800; letter-spacing: -1px; }
+  .tagline { font-size: 21px; color: var(--muted); margin: 12px auto 8px; max-width: 580px; }
+  .badges { margin: 10px 0 30px; color: var(--muted); font-size: 14px; }
+  .badges span { margin: 0 8px; }
+  .cta { display: inline-flex; gap: 14px; flex-wrap: wrap; justify-content: center; }
+  .btn { display: inline-block; padding: 14px 28px; border-radius: 12px; font-size: 16px; font-weight: 600; text-decoration: none; transition: transform .15s ease, box-shadow .15s ease; }
+  .btn:hover { transform: translateY(-2px); }
+  .btn-primary { background: linear-gradient(135deg, var(--green), var(--teal)); color: #06120d; box-shadow: 0 8px 28px rgba(61,220,145,.3); }
+  .btn-ghost { background: var(--card); color: var(--text); border: 1px solid rgba(255,255,255,.1); }
+  .brew { margin-top: 22px; font-size: 14px; color: var(--muted); }
+  .brew code { display: inline-block; text-align: left; background: var(--card); border: 1px solid rgba(255,255,255,.1); padding: 12px 16px; border-radius: 8px; font-family: "SF Mono", Menlo, monospace; font-size: 13px; line-height: 1.9; color: #a8ecd0; }
+  .shot { margin: 60px auto 0; max-width: 860px; border-radius: 14px; border: 1px solid rgba(255,255,255,.09); background: var(--card); box-shadow: 0 30px 80px rgba(0,0,0,.6); overflow: hidden; text-align: left; }
+  .shot-bar { display: flex; align-items: center; gap: 7px; padding: 12px 16px; border-bottom: 1px solid rgba(255,255,255,.06); }
+  .shot-bar i { width: 11px; height: 11px; border-radius: 50%; background: rgba(255,255,255,.16); }
+  .shot-bar p { margin-left: 10px; font-size: 12px; color: var(--muted); }
+  .shot-body { display: grid; grid-template-columns: 260px 1fr; min-height: 240px; }
+  .shot-body aside { border-right: 1px solid rgba(255,255,255,.06); padding: 16px; }
+  .aside-label { font-size: 11px; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); margin-bottom: 12px; }
+  .row { display: flex; align-items: center; gap: 9px; font-size: 13px; color: var(--muted); padding: 7px 0; font-family: "SF Mono", Menlo, monospace; }
+  .row i { width: 7px; height: 7px; border-radius: 50%; background: rgba(255,255,255,.2); flex: none; }
+  .row.on { color: var(--text); }
+  .row.on i { background: var(--green); box-shadow: 0 0 10px rgba(61,220,145,.8); }
+  .row.ext i { background: #f5c451; box-shadow: 0 0 10px rgba(245,196,81,.7); }
+  .detail { padding: 22px; }
+  .status { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--green); }
+  .status i { width: 7px; height: 7px; border-radius: 50%; background: var(--green); }
+  .detail h3 { font-size: 22px; margin: 8px 0 2px; }
+  .detail .meta { font-size: 13px; color: var(--muted); font-family: "SF Mono", Menlo, monospace; }
+  .chips { display: flex; gap: 8px; margin: 16px 0; flex-wrap: wrap; }
+  .chip { font-size: 12px; padding: 6px 14px; border-radius: 8px; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.08); }
+  .chip.accent { background: rgba(61,220,145,.14); border-color: rgba(61,220,145,.3); color: var(--green); }
+  .detail pre { font-family: "SF Mono", Menlo, monospace; font-size: 12px; color: var(--muted); background: rgba(0,0,0,.35); border: 1px solid rgba(255,255,255,.06); border-radius: 8px; padding: 12px 14px; }
+  section { padding: 70px 0; }
+  h2 { font-size: 30px; font-weight: 700; text-align: center; margin-bottom: 12px; letter-spacing: -.5px; }
+  .sub { text-align: center; color: var(--muted); font-size: 15px; max-width: 580px; margin: 0 auto 40px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 18px; }
+  .card { background: var(--card); border: 1px solid rgba(255,255,255,.07); border-radius: 14px; padding: 24px; }
+  .card .emoji { font-size: 26px; }
+  .card h3 { font-size: 16px; margin: 10px 0 6px; }
+  .card p { font-size: 14px; color: var(--muted); }
+  .card code { font-family: "SF Mono", Menlo, monospace; font-size: 12px; color: #a8ecd0; }
+  table { width: 100%; max-width: 560px; margin: 0 auto; border-collapse: collapse; background: var(--card); border-radius: 14px; overflow: hidden; border: 1px solid rgba(255,255,255,.07); }
+  th, td { padding: 12px 20px; text-align: left; font-size: 14px; }
+  th { background: rgba(61,220,145,.1); font-weight: 600; }
+  tr + tr td { border-top: 1px solid rgba(255,255,255,.05); }
+  kbd { background: #1e2624; border: 1px solid rgba(255,255,255,.14); border-radius: 6px; padding: 2px 9px; font-family: "SF Mono", Menlo, monospace; font-size: 13px; }
+  .stacks { text-align: center; color: var(--muted); font-size: 14px; max-width: 780px; margin: 0 auto; font-family: "SF Mono", Menlo, monospace; line-height: 2.2; }
+  .stacks span { background: var(--card); border: 1px solid rgba(255,255,255,.07); border-radius: 7px; padding: 5px 11px; margin: 0 3px; white-space: nowrap; }
+  .source { max-width: 560px; margin: 0 auto; }
+  .source pre { background: var(--card); border: 1px solid rgba(255,255,255,.08); border-radius: 12px; padding: 18px 20px; font-family: "SF Mono", Menlo, monospace; font-size: 13px; color: #a8ecd0; overflow-x: auto; line-height: 1.9; }
+  footer { padding: 50px 0 70px; text-align: center; color: var(--muted); font-size: 14px; border-top: 1px solid rgba(255,255,255,.06); }
+  footer a { color: #a8ecd0; text-decoration: none; }
+  .coffee { display: inline-block; margin: 0 0 22px; padding: 12px 24px; border-radius: 12px; background: #FFDD00; color: #111; font-weight: 700; text-decoration: none; }
+  @media (max-width: 720px) { .shot-body { grid-template-columns: 1fr; } .shot-body aside { border-right: none; border-bottom: 1px solid rgba(255,255,255,.06); } }
+  @media (max-width: 640px) { h1 { font-size: 38px; } .tagline { font-size: 17px; } }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="logo"><img src="assets/mark.png" alt=""></div>
+    <h1>DevDock</h1>
+    <p class="tagline">All your local dev stacks. One workspace. A free, open source, native macOS app that starts your API, web, and mobile projects without a single terminal tab.</p>
+    <p class="badges"><span>✅ Notarized by Apple</span><span>🔓 MIT Licensed</span><span>🖥 macOS 14+</span></p>
+    <div class="cta">
+      <a class="btn btn-primary" href="https://github.com/bkrdmrcioglu/devdock/releases/latest">⬇ Download for macOS</a>
+      <a class="btn btn-ghost" href="https://github.com/bkrdmrcioglu/devdock">View on GitHub</a>
+    </div>
+    <p class="brew">or<br><code>brew tap bkrdmrcioglu/devdock https://github.com/bkrdmrcioglu/devdock<br>brew install --cask devdock</code></p>
+
+    <div class="shot">
+      <div class="shot-bar">
+        <i></i><i></i><i></i>
+        <p>DevDock — local workspace manager</p>
+      </div>
+      <div class="shot-body">
+        <aside>
+          <p class="aside-label">Projects</p>
+          <div class="row on"><i></i> harbor/api · Nest · :3000</div>
+          <div class="row"><i></i> harbor/mobile · Expo · :8081</div>
+          <div class="row on ext"><i></i> pulse-store · Next · :3001</div>
+          <div class="row"><i></i> ledger · Go · :8080</div>
+        </aside>
+        <div class="detail">
+          <p class="status"><i></i> Ready</p>
+          <h3>harbor/api</h3>
+          <p class="meta">NestJS · localhost:3000</p>
+          <div class="chips">
+            <span class="chip accent">Stop</span>
+            <span class="chip">Open</span>
+            <span class="chip">Logs</span>
+          </div>
+          <pre>npm run start:dev</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<section>
+  <div class="wrap">
+    <h2>Everything in the dock</h2>
+    <p class="sub">Built for the morning ritual — replace five terminal tabs, a sticky note of port numbers, and “which simulator did I leave open?”</p>
+    <div class="grid">
+      <div class="card"><div class="emoji">🔍</div><h3>Scan &amp; detect</h3><p>Walks your project folders and identifies 36 frameworks with no config. Monorepo-aware names like <code>studio/web</code>, and a rescan on every launch.</p></div>
+      <div class="card"><div class="emoji">▶️</div><h3>Start, stop, restart</h3><p>Runs your real dev scripts with a GUI-friendly PATH (nvm, FVM, Homebrew). Stop kills the whole process tree and verifies it actually exited.</p></div>
+      <div class="card"><div class="emoji">📱</div><h3>Mobile targets</h3><p>One-click iOS Simulator, Android Emulator, and Web for Expo, React Native, Ionic, and Flutter — never a physical phone by mistake.</p></div>
+      <div class="card"><div class="emoji">📜</div><h3>Logs drawer</h3><p>Live logs slide in from the right with All / Errors / Warnings tabs, live counts, and one-tap copy.</p></div>
+      <div class="card"><div class="emoji">🔌</div><h3>Port awareness</h3><p>See who holds a <code>localhost</code> port and kill it in one tap. Projects already running in Terminal show up as external instead of double-starting.</p></div>
+      <div class="card"><div class="emoji">🗂</div><h3>Workspaces</h3><p>Group API + web + mobile and launch them together, staggered if you like. Auto-suggested from stack roles, plus a morning routine.</p></div>
+      <div class="card"><div class="emoji">🛠</div><h3>Stack commands</h3><p>Per-framework helpers in one place — install, migrate, test, build, artisan, Flutter tool keys, Metro keys — plus your own custom commands.</p></div>
+      <div class="card"><div class="emoji">📍</div><h3>Menu bar native</h3><p>Start stacks and run your morning routine without bringing the main window forward. Live CPU / RAM for managed process trees.</p></div>
+      <div class="card"><div class="emoji">🔓</div><h3>Free, no gates</h3><p>No account, no license key, no paid tier. MIT licensed — read the Swift source, fork it, or send a pull request.</p></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Keyboard shortcuts</h2>
+    <p class="sub">The palette covers the rest — hit ⌘K and type.</p>
+    <table>
+      <tr><th>Shortcut</th><th>Action</th></tr>
+      <tr><td><kbd>⌘ K</kbd></td><td>Command palette</td></tr>
+      <tr><td><kbd>⌘⇧ R</kbd></td><td>Rescan folders</td></tr>
+      <tr><td><kbd>⌘⇧ .</kbd></td><td>Stop all running projects</td></tr>
+      <tr><td><kbd>⌘⇧ M</kbd></td><td>Start morning routine</td></tr>
+    </table>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>36 frameworks detected</h2>
+    <p class="sub">Drop a folder in as a scan root and DevDock figures out the rest.</p>
+    <p class="stacks">
+      <span>Next</span><span>Nuxt</span><span>Remix</span><span>Astro</span><span>Gatsby</span><span>Angular</span><span>Svelte</span><span>SvelteKit</span><span>Solid</span><span>Ember</span><span>Vite</span><span>Vue</span><span>React</span><span>Quasar</span><span>Expo</span><span>React Native</span><span>Flutter</span><span>Ionic</span><span>Nest</span><span>Express</span><span>Fastify</span><span>Hono</span><span>Koa</span><span>Laravel</span><span>Symfony</span><span>Django</span><span>Flask</span><span>FastAPI</span><span>Rails</span><span>Spring Boot</span><span>.NET</span><span>Phoenix</span><span>Go</span><span>Rust</span><span>Electron</span><span>Tauri</span>
+    </p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Build from source</h2>
+    <p class="sub">Swift and SwiftUI, generated with XcodeGen. Contributions welcome — nothing is behind a paid tier.</p>
+    <div class="source">
+<pre>brew install xcodegen
+git clone https://github.com/bkrdmrcioglu/devdock.git
+cd devdock
+xcodegen generate
+open DevDock.xcodeproj</pre>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <a class="coffee" href="https://buymeacoffee.com/bkrdmrcioglu">☕ Buy me a coffee</a>
+    <p>Free &amp; open source, made with ❤️ · <a href="https://github.com/bkrdmrcioglu/devdock">GitHub</a> · <a href="https://github.com/bkrdmrcioglu/devdock/releases">Releases</a> · <a href="https://github.com/bkrdmrcioglu/devdock/blob/main/CONTRIBUTING.md">Contributing</a> · MIT © <span id="y">2026</span> Bekir Demircioglu</p>
+    <p style="margin-top:8px">Your projects run on your machine. Scan roots and settings stay local — nothing is uploaded.</p>
+  </div>
+</footer>
+
+<script>document.getElementById("y").textContent = new Date().getFullYear();</script>
+</body>
+</html>

@@ -1,8 +1,13 @@
-# DevDock marketing
+# DevDock site
 
-**Moved to [DevSuites](https://devsuites.dev/#devdock)** — repo: https://github.com/bkrdmrcioglu/devsuites
+Source for <https://bkrdmrcioglu.github.io/devdock/>, served by GitHub Pages from
+`main` → `/docs`.
 
-This `docs/index.html` only redirects. Download zip / Homebrew now use the main repo:
+`index.html` is self-contained — styles are inline, the only external files are the
+images in `assets/`. Edit it directly and push to `main`; Pages rebuilds on its own.
 
-- https://github.com/bkrdmrcioglu/devdock/releases
-- `brew tap bkrdmrcioglu/devdock https://github.com/bkrdmrcioglu/devdock && brew install --cask devdock`
+Keep these in sync when cutting a release:
+
+- Homebrew command matches [`Casks/devdock.rb`](../Casks/devdock.rb)
+- Feature list matches the [root README](../README.md)
+- Download button points at `releases/latest`, so it needs no version bump
